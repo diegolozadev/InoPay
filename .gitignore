@@ -1,0 +1,19 @@
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Django
+__pycache__/
+*.pyc
+db.sqlite3
+staticfiles/
+
+# Variables de entorno
+.env
+
+# VS Code
+.vscode/
+
+# Migraciones compiladas
+*.log
