@@ -1,0 +1,124 @@
+/* --- Estilos Generales --- */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- Estructura Principal --- */
+#wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* --- Sidebar (Fondo Gris Claro) --- */
+#sidebar-wrapper {
+    width: 260px;
+    background-color: #f8f9fa; /* Gris claro para que resalte el logo azul */
+    border-right: 1px solid #dee2e6;
+    transition: width 0.3s ease;
+    overflow-x: hidden;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estado Colapsado (Mini Sidebar) */
+#wrapper.toggled #sidebar-wrapper {
+    width: 75px;
+}
+
+/* Cabecera del Sidebar */
+#sidebar-wrapper .sidebar-heading {
+    padding: 1.5rem 1.25rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50; /* Texto oscuro */
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+    min-height: 70px;
+}
+
+/* --- Elementos del Menú --- */
+#sidebar-wrapper .list-group-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border: none;
+    color: #6c757d; /* Gris intermedio */
+    background-color: transparent;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    color: #0d6efd;
+    background-color: #e9ecef;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    color: #fff;
+    background-color: #0d6efd; /* Azul para resaltar la sección actual */
+    border-radius: 0 25px 25px 0;
+    margin-right: 10px;
+}
+
+/* Iconos y Texto */
+.nav-icon {
+    min-width: 40px;
+    font-size: 1.2rem;
+    display: inline-block;
+}
+
+.menu-text {
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+
+/* Ocultar texto y logo al colapsar */
+#wrapper.toggled .menu-text, 
+#wrapper.toggled .sidebar-heading span {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* --- Logo --- */
+.logo {
+    height: 50px;
+    width: auto;
+    transition: all 0.3s ease;
+}
+
+#wrapper.toggled .logo {
+    display: none; /* O puedes ajustarlo para que se vea solo el logo pequeño */
+}
+
+/* --- Contenido de la Página --- */
+#page-content-wrapper {
+    flex: 1;
+    width: 100%;
+    padding: 0;
+    background-color: #f4f7f6;
+}
+
+/* Navbar superior */
+.navbar {
+    padding: 0.8rem 1rem;
+    min-height: 70px;
+}
+
+/* Utility classes */
+.hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+}
+
+.transition {
+    transition: all 0.3s ease;
+}
+

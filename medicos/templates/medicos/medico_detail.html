@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Médico - InoPay{% endblock %}
+{% block section_title %}Configuración de Perfil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-user-edit me-2 text-primary"></i>
+                Modulo de edición de <strong class="text-primary">{{ medico.nombre }}</strong>
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold small text-muted">Nombre</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold small text-muted">Documento</label>
+                        {{ form.numero_documento }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3 text-muted small">
+                        <strong>Especialidad:</strong> {{ form.especialidad }}
+                    </div>
+                    <div class="col-md-6 mb-3 text-muted small">
+                        <strong>Email:</strong> {{ form.email }}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'medico-list' %}" class="btn btn-light border">Cancelar</a>
+                    <button type="submit" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-save me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

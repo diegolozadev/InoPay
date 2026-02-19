@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if medico %}Editar{% else %}Nuevo{% endif %} Médico - InoPay{% endblock %}
+{% block section_title %}Gestión de Profesionales{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold text-secondary">
+                        <i class="fas fa-user-md me-2 text-primary"></i>
+                        {% if medico %}Editar Información de {{ medico.nombre }}{% else %}Registrar Nuevo Médico{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Nombre Completo</label>
+                                {{ form.nombre }}
+                                <div class="text-danger small">{{ form.nombre.errors }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Número de Documento</label>
+                                {{ form.numero_documento }}
+                                <div class="text-danger small">{{ form.numero_documento.errors }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Especialidad</label>
+                                {{ form.especialidad }}
+                                <div class="text-danger small">{{ form.especialidad.errors }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Correo Electrónico</label>
+                                {{ form.email }}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Teléfono de Contacto</label>
+                                {{ form.telefono }}
+                                <div class="text-danger small">{{ form.telefono.errors }}</div>
+                            </div>
+                            </div>
+
+                        <hr class="my-4 opacity-25">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'medico-list' %}" class="btn btn-light px-4 border">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <i class="fas fa-check-circle me-1"></i> 
+                                {% if medico %}Guardar Cambios{% else %}Registrar Médico{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
