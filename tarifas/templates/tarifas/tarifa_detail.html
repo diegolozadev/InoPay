@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{% if object %}Editar{% else %}Nueva{% endif %} Tarifa - InoPay{% endblock %}
+{% block section_title %}Gestión de Precios{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-tag me-2 text-primary"></i>
+                        {% if object %}Actualizar Tarifa: {{ object.nombre }}{% else %}Registrar Nueva Tarifa{% endif %}
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Nombre del Servicio / Tarifa</label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                    <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Unidad de Negocio</label>
+                                {{ form.unidad_negocio }}
+                                {% if form.unidad_negocio.errors %}
+                                    <div class="text-danger small mt-1">{{ form.unidad_negocio.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Precio($)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">$</span>
+                                    {{ form.precio }}
+                                </div>
+                                {% if form.precio.errors %}
+                                    <div class="text-danger small mt-1">{{ form.precio.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Descripción Corta</label>
+                                {{ form.descripcion }}
+                                {% if form.descripcion.errors %}
+                                    <div class="text-danger small mt-1">{{ form.descripcion.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-25">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'tarifas' %}" class="btn btn-light px-4 border text-muted">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <i class="fas fa-save me-2"></i>
+                                {% if object %}Actualizar{% else %}Crear{% endif %} Tarifa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-light border-0 mt-3 d-flex align-items-center" style="background-color: #f1f8ff;">
+                <i class="fas fa-info-circle text-primary me-3 fs-4"></i>
+                <small class="text-muted">
+                    Recuerda que la <strong>Unidad de Negocio</strong> ayuda a filtrar los reportes financieros al final del mes.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Ajuste para que el textarea no sea gigante por defecto */
+    textarea.form-control {
+        height: 38px; /* Altura inicial parecida a un input */
+        min-height: 38px;
+        transition: height 0.2s;
+    }
+    textarea.form-control:focus {
+        height: 100px; /* Se expande al hacer clic */
+    }
+    .input-group-text {
+        border-right: none;
+    }
+    #id_precio {
+        border-left: none;
+    }
+</style>
+{% endblock %}

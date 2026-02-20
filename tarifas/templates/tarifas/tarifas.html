@@ -11,7 +11,7 @@
             <h2 class="fw-bold mb-0">Servicios y Tarifas</h2>
             <p class="text-muted mb-0">Listado oficial de servicios médicos y sus tarifas.</p>
         </div>
-        <a href="#" class="btn btn-primary px-4 shadow-sm">
+        <a href="{% url 'tarifa_create' %}" class="btn btn-primary px-4 shadow-sm">
             <i class="fas fa-plus me-2"></i>Nuevo Servicio
         </a>
     </div>
@@ -23,7 +23,7 @@
                     <thead class="bg-light">
                         <tr class="text-muted small uppercase">
                             <th class="ps-4 py-3">Nombre del Servicio</th>
-                            <th class="py-3">Costo</th>
+                            <th class="py-3">Precio</th>
                             <th class="py-3">Unidad de Negocio</th>
                             <th class="py-3">Descripción</th>
                             <th class="text-end pe-4 py-3">Acciones</th>
@@ -52,7 +52,7 @@
                                 </div>
                             </td>
                             <td class="text-end pe-4">
-                                <a href="#" class="btn btn-sm btn-outline-secondary border-0 mx-1" title="Editar">
+                                <a href="{% url 'tarifa_detail' tarifa.id %}" class="btn btn-sm btn-outline-secondary border-0 mx-1" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button class="btn btn-sm btn-outline-danger border-0 mx-1" title="Eliminar">

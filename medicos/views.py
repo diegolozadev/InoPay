@@ -16,7 +16,7 @@ class MedicoListView(ListView):
 # view para mostrar el detalle de un médico y permitir su edición
 class MedicoDetailView(UpdateView): # Cambiamos DetailView por UpdateView
     model = Medico
-    form_class = MedicoForm # Importante: asignamos tu formulario
+    form_class = MedicoForm # Importante: asignar formulario
     template_name = 'medicos/medico_detail.html'
     context_object_name = 'medico'
     
@@ -26,7 +26,7 @@ class MedicoDetailView(UpdateView): # Cambiamos DetailView por UpdateView
 # view para crear un nuevo médico
 class MedicoCreateView(CreateView): # Cambiamos CreateView por UpdateView
     model = Medico
-    form_class = MedicoForm # Importante: asignamos tu formulario
+    form_class = MedicoForm # Importante: asignar formulario
     template_name = 'medicos/medico_create.html'
     context_object_name = 'medico'
     
