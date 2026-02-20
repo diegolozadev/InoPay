@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}Preparar Recibo - {{ medico.nombre }}{% endblock %}
+{% block section_title %}Preparar Recibo - {{ medico.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-file-invoice-dollar fa-lg"></i>
+                </div>
+                <div>
+                    <h3 class="mb-0 fw-bold">Generar Liquidación</h3>
+                    <p class="text-muted mb-0">{{ medico.nombre }} | {{ medico.especialidad }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small text-uppercase">Fecha Inicial</label>
+                    <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small text-uppercase">Fecha Final</label>
+                    <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}" required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                        <i class="fa-solid fa-calculator me-2"></i> Calcular Producción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if producciones %}
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+            <h5 class="mb-0 fw-bold text-dark">Servicios Realizados</h5>
+            <a href="{% url 'imprimir-recibo' medico.id %}?fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" 
+               target="_blank" class="btn btn-success fw-bold">
+                <i class="fa-solid fa-print me-2"></i> GENERAR RECIBO (PDF)
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Fecha</th>
+                        <th>Servicio</th>
+                        <th class="text-center">Cant.</th>
+                        <th class="text-end pe-4">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in producciones %}
+                    <tr>
+                        <td class="ps-4">{{ p.fecha_labor|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="fw-bold">{{ p.servicio.nombre }}</div>
+                            <small class="text-muted">{{ p.servicio.unidad_negocio }}</small>
+                        </td>
+                        <td class="text-center"><span class="badge bg-info text-dark">{{ p.cantidad }}</span></td>
+                        <td class="text-end pe-4 fw-bold text-primary">${{ p.subtotal|floatformat:0|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-light">
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold py-3">TOTAL A PAGAR:</td>
+                        <td class="text-end pe-4 fw-bold py-3 h5 text-success">${{ total|floatformat:0|intcomma }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    {% elif fecha_inicio %}
+    <div class="alert alert-light border shadow-sm text-center py-5">
+        <i class="fa-solid fa-folder-open fa-3x text-muted mb-3"></i>
+        <h5>No se encontró producción</h5>
+        <p class="text-muted">No hay registros para este médico entre el {{ fecha_inicio }} y {{ fecha_fin }}.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

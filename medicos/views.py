@@ -157,6 +157,7 @@ class ProduccionListView(LoginRequiredMixin, ListView):
         context['medicos'] = Medico.objects.all() # Para el filtro desplegable
         return context
 
+
 @login_required
 def exportar_produccion_excel(request):
     # 1. Capturamos los filtros que vienen en la URL (?fecha_inicio=...&medico=...)
@@ -208,3 +209,57 @@ def exportar_produccion_excel(request):
     # Guardamos el libro en la respuesta
     wb.save(response)
     return response
+
+
+# view para preparar el recibo (pantalla de selección de fechas y resumen) y luego imprimirlo (pantalla limpia para impresión)
+@login_required
+def preparar_recibo(request, medico_id):
+    medico = get_object_or_404(Medico, pk=medico_id)
+    
+    # Intentamos obtener fechas si el usuario ya filtró
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    
+    producciones = None
+    total = 0
+
+    if fecha_inicio and fecha_fin:
+        # Buscamos la producción en ese rango
+        producciones = Produccion.objects.filter(
+            medico=medico,
+            fecha_labor__range=[fecha_inicio, fecha_fin]
+        ).select_related('servicio')
+        
+        # Calculamos el total sumando los subtotales de cada registro
+        total = sum(p.subtotal for p in producciones)
+
+    return render(request, 'medicos/preparar_recibo.html', {
+        'medico': medico,
+        'producciones': producciones,
+        'total': total,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+    })
+
+# view para mostrar el recibo en formato limpio para impresión
+@login_required
+def imprimir_recibo(request, medico_id):
+    medico = get_object_or_404(Medico, pk=medico_id)
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    
+    producciones = Produccion.objects.filter(
+        medico=medico,
+        fecha_labor__range=[fecha_inicio, fecha_fin]
+    ).select_related('servicio')
+    
+    total = sum(p.subtotal for p in producciones)
+
+    return render(request, 'medicos/recibo_impresion_final.html', {
+        'medico': medico,
+        'producciones': producciones,
+        'total': total,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+        'hoy': timezone.now()
+    })
