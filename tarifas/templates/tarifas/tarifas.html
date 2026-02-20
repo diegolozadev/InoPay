@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Tarifas - InoPay{% endblock %}
 {% block section_title %}Catálogo de Servicios{% endblock %}
@@ -23,25 +24,31 @@
                         <tr class="text-muted small uppercase">
                             <th class="ps-4 py-3">Nombre del Servicio</th>
                             <th class="py-3">Costo</th>
+                            <th class="py-3">Unidad de Negocio</th>
                             <th class="py-3">Descripción</th>
                             <th class="text-end pe-4 py-3">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for servicio in servicios %}
+                        {% for tarifa in tarifas %}
                         <tr class="border-bottom">
                             <td class="ps-4 py-3">
-                                <span class="fw-bold text-dark d-block">{{ servicio.nombre }}</span>
-                                <small class="text-muted">ID #{{ servicio.id }}</small>
+                                <span class="fw-bold text-dark d-block">{{ tarifa.nombre }}</span>
+                                <small class="text-muted">ID #{{ tarifa.id }}</small>
                             </td>
                             <td>
                                 <span class="badge bg-success-light text-success fs-6 px-3 py-2">
-                                    ${{ servicio.precio|floatformat:0 }}
+                                    ${{ tarifa.precio|floatformat:0|intcomma }} COP
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-light text-primary fs-6 px-3 py-2">
+                                    {{ tarifa.get_unidad_negocio_display }}
                                 </span>
                             </td>
                             <td>
                                 <div class="text-muted small text-truncate" style="max-width: 300px;">
-                                    {{ servicio.descripcion|default:"Sin descripción" }}
+                                    {{ tarifa.descripcion|default:"Sin descripción" }}
                                 </div>
                             </td>
                             <td class="text-end pe-4">
