@@ -5,6 +5,6 @@ from .models import Tarifa
 
 @admin.register(Tarifa)
 class TarifaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'descripcion', 'precio')
+    list_display = ('nombre', 'descripcion', 'precio', 'unidad_negocio', 'fecha_registro', 'registrado_por')
     search_fields = ('nombre',)
     list_filter = ('precio',)

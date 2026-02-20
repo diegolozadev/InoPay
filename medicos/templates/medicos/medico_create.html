@@ -1,64 +1,86 @@
 {% extends 'base.html' %}
 
-{% block title %}{% if medico %}Editar{% else %}Nuevo{% endif %} Médico - InoPay{% endblock %}
-{% block section_title %}Gestión de Profesionales{% endblock %}
+{% load humanize %}
+
+{% block title %}Registrar Nuevo Médico - InoPay{% endblock %}
+{% block section_title %}Alta de Profesionales{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="mb-0 fw-bold text-secondary">
-                        <i class="fas fa-user-md me-2 text-primary"></i>
-                        {% if medico %}Editar Información de {{ medico.nombre }}{% else %}Registrar Nuevo Médico{% endif %}
-                    </h5>
-                </div>
+        <div class="col-lg-10">
+            
+            <div class="mb-4">
+                <h2 class="fw-bold text-dark mb-1">Nuevo Perfil Médico</h2>
+                <p class="text-muted">Complete la información básica y asigne el portafolio de servicios habilitados.</p>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-body p-4">
                     <form method="POST" novalidate>
                         {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold text-muted">Nombre Completo</label>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-7">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Nombre Completo</label>
                                 {{ form.nombre }}
-                                <div class="text-danger small">{{ form.nombre.errors }}</div>
+                                {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold text-muted">Número de Documento</label>
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Documento de Identidad</label>
                                 {{ form.numero_documento }}
-                                <div class="text-danger small">{{ form.numero_documento.errors }}</div>
+                                {% if form.numero_documento.errors %}<div class="text-danger small">{{ form.numero_documento.errors }}</div>{% endif %}
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold text-muted">Especialidad</label>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Especialidad Clínica</label>
                                 {{ form.especialidad }}
-                                <div class="text-danger small">{{ form.especialidad.errors }}</div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold text-muted">Correo Electrónico</label>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Correo Electrónico</label>
                                 {{ form.email }}
-                                <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Teléfono / Celular</label>
+                                {{ form.telefono }}
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold text-muted">Teléfono de Contacto</label>
-                                {{ form.telefono }}
-                                <div class="text-danger small">{{ form.telefono.errors }}</div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-primary text-uppercase d-block mb-3">
+                                <i class="fas fa-list-check me-2"></i>Servicios que realizará este médico
+                            </label>
+                            
+                            <div class="servicios-container p-3 border rounded bg-light" style="max-height: 300px; overflow-y: auto;">
+                                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
+                                    {% for checkbox in form.servicios %}
+                                        <div class="col">
+                                            <div class="form-check p-2 h-100 bg-white border rounded shadow-xs custom-check-card">
+                                                {{ checkbox.tag }}
+                                                <label class="form-check-label ms-2 small fw-medium" for="{{ checkbox.id_for_label }}">
+                                                    {{ checkbox.choice_label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle me-1"></i> Seleccione solo los servicios que el profesional tiene contratados.
                             </div>
+                        </div>
 
                         <hr class="my-4 opacity-25">
 
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="{% url 'medico-list' %}" class="btn btn-light px-4 border">Cancelar</a>
-                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
-                                <i class="fas fa-check-circle me-1"></i> 
-                                {% if medico %}Guardar Cambios{% else %}Registrar Médico{% endif %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'medico-list' %}" class="btn btn-link text-muted text-decoration-none">
+                                <i class="fas fa-chevron-left me-1"></i> Cancelar y volver
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 py-2 shadow fw-bold">
+                                <i class="fas fa-user-plus me-2"></i>Finalizar Registro
                             </button>
                         </div>
                     </form>
@@ -67,4 +89,40 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilos para que la lista de servicios se vea impecable */
+    .servicios-container {
+        scrollbar-width: thin;
+        scrollbar-color: #0d6efd #f8f9fa;
+    }
+
+    .custom-check-card {
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-check-card:hover {
+        border-color: #0d6efd !important;
+        background-color: #f0f7ff !important;
+        transform: translateY(-1px);
+    }
+
+    /* Ajuste de checkboxes */
+    .form-check-input {
+        width: 1.1em;
+        height: 1.1em;
+        margin-top: 0;
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        line-height: 1.2;
+    }
+
+    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+</style>
 {% endblock %}

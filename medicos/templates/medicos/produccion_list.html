@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">Consolidado de Producción</h2>
+        <div class="mb-3">
+            <a href="{% url 'exportar-produccion-excel' %}?{{ request.GET.urlencode }}" class="btn btn-success">
+                <i class="fa-solid fa-file-excel me-2"></i> Descargar Excel
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Fecha Inicio</label>
+                    <input type="date" name="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Fecha Fin</label>
+                    <input type="date" name="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Médico</label>
+                    <select name="medico" class="form-select">
+                        <option value="">Todos los médicos</option>
+                        {% for m in medicos %}
+                            <option value="{{ m.id }}" {% if request.GET.medico == m.id|stringformat:"i" %}selected{% endif %}>
+                                {{ m.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-dark w-100">
+                        <i class="fa-solid fa-filter me-2"></i>Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small uppercase">
+                    <tr>
+                        <th class="ps-4">Fecha</th>
+                        <th>Médico</th>
+                        <th>Servicio</th>
+                        <th>Unidad Negocio</th>
+                        <th class="text-center">Cant.</th>
+                        <th class="text-end pe-4">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in producciones %}
+                    <tr>
+                        <td class="ps-4 fw-medium">{{ p.fecha_labor|date:"d/m/Y" }}</td>
+                        <td>{{ p.medico.nombre }}</td>
+                        <td>{{ p.servicio.nombre }}</td>
+                        <td>
+                            <span class="badge rounded-pill bg-light text-dark border">
+                                {{ p.servicio.unidad_negocio }}
+                            </span>
+                        </td>
+                        <td class="text-center"><span class="badge bg-success text-white">{{ p.cantidad }}</span></td>
+                        <td class="text-end pe-4 fw-bold text-primary">${{ p.subtotal|floatformat:0|intcomma }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">No se encontraron registros en este rango.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

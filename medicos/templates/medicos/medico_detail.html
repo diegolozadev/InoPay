@@ -1,49 +1,95 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
-{% block title %}Editar Médico - InoPay{% endblock %}
-{% block section_title %}Configuración de Perfil{% endblock %}
+{% block title %}Editar Perfil: {{ medico.nombre }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
+    <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card-header bg-white py-3 border-bottom">
             <h5 class="mb-0">
                 <i class="fas fa-user-edit me-2 text-primary"></i>
-                Modulo de edición de <strong class="text-primary">{{ medico.nombre }}</strong>
+                Gestión de Perfil: <strong class="text-primary">{{ medico.nombre }}</strong>
             </h5>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <form method="post" novalidate>
                 {% csrf_token %}
                 
-                <div class="row">
+                <div class="row mb-4">
                     <div class="col-md-6 mb-3">
-                        <label class="fw-bold small text-muted">Nombre</label>
+                        <label class="fw-bold small text-muted text-uppercase">Nombre Completo</label>
                         {{ form.nombre }}
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="fw-bold small text-muted">Documento</label>
+                        <label class="fw-bold small text-muted text-uppercase">Documento de Identidad</label>
                         {{ form.numero_documento }}
                     </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="fw-bold small text-muted text-uppercase">Especialidad</label>
+                        {{ form.especialidad }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="fw-bold small text-muted text-uppercase">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="fw-bold small text-muted text-uppercase">Teléfono</label>
+                        {{ form.telefono }}
+                    </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3 text-muted small">
-                        <strong>Especialidad:</strong> {{ form.especialidad }}
-                    </div>
-                    <div class="col-md-6 mb-3 text-muted small">
-                        <strong>Email:</strong> {{ form.email }}
+                <div class="mb-4">
+                    <label class="fw-bold small text-primary text-uppercase d-block mb-3">
+                        <i class="fas fa-hand-holding-medical me-2"></i>Portafolio de Servicios Autorizados
+                    </label>
+                    
+                    <div class="servicios-edit-container p-3 border rounded bg-light">
+                        <p class="text-muted small mb-3">Marque o desmarque los servicios para actualizar el portafolio del médico:</p>
+                        
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
+                            {% for checkbox in form.servicios %}
+                                <div class="col">
+                                    <div class="form-check p-2 h-100 bg-white border rounded shadow-xs custom-check-card">
+                                        {{ checkbox.tag }}
+                                        <label class="form-check-label ms-2 small fw-medium text-dark" for="{{ checkbox.id_for_label }}">
+                                            {{ checkbox.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{% url 'medico-list' %}" class="btn btn-light border">Cancelar</a>
-                    <button type="submit" class="btn btn-primary shadow-sm">
-                        <i class="fas fa-save me-1"></i> Guardar Cambios
+                <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
+                    <a href="{% url 'medico-list' %}" class="btn btn-light border px-4">Cancelar</a>
+                    <button type="submit" class="btn btn-primary shadow-sm px-4">
+                        <i class="fas fa-sync-alt me-1"></i> Actualizar Perfil Completo
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+    .servicios-edit-container {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .custom-check-card {
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+    }
+    .custom-check-card:hover {
+        border-color: #0d6efd !important;
+        background-color: #f0f7ff !important;
+    }
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+</style>
 {% endblock %}
