@@ -52,7 +52,7 @@ class MedicoCreateView(LoginRequiredMixin, CreateView):
 @login_required
 def cargar_produccion_medico(request, medico_id):
     """
-    Registra de forma masiva la producción diaria de un médico.
+    Registra de forma masiva la producción mensual de un médico.
     Captura el precio actual de la tarifa y lo guarda permanentemente
     en cada registro para evitar cambios históricos.
     """
