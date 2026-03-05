@@ -5,6 +5,7 @@ from medicos.forms import MedicoForm
 from .models import Medico, Produccion, Tarifa
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
@@ -20,21 +21,23 @@ class MedicoListView(LoginRequiredMixin, ListView):
     context_object_name = 'medicos'
 
 # view para mostrar el detalle de un médico y permitir su edición
-class MedicoDetailView(LoginRequiredMixin, UpdateView):
+class MedicoDetailView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Medico
     form_class = MedicoForm # Importante: asignar formulario
     template_name = 'medicos/medico_detail.html'
     context_object_name = 'medico'
-    
+    success_message = "¡Médico %(nombre)s actualizado con éxito!"
+
     # A dónde redirigir tras guardar con éxito
     success_url = reverse_lazy('medico-list')
 
 # view para crear un nuevo médico
-class MedicoCreateView(LoginRequiredMixin, CreateView):
+class MedicoCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Medico
     form_class = MedicoForm # Importante: asignar formulario
     template_name = 'medicos/medico_create.html'
     context_object_name = 'medico'
+    success_message = "¡Médico %(nombre)s creado con éxito!"
     
     # A dónde redirigir tras guardar con éxito
     success_url = reverse_lazy('medico-list')
@@ -108,7 +111,7 @@ def cargar_produccion_medico(request, medico_id):
                 'medico': medico,
                 'servicios': servicios,
                 'hoy': hoy,
-                'fecha_seleccionada': fecha_labor # Mantenemos la fecha para comodidad del usuario
+                'fecha_seleccionada': fecha_labor, # Mantenemos la fecha para comodidad del usuario
             })
 
         # 4. Carga masiva

@@ -139,3 +139,8 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger', # Esto hace que los errores se vean rojos (danger)
 }
+
+LOGIN_REDIRECT_URL = 'medico-list'  # Ruta para ir al iniciar sesión con éxito
+LOGOUT_REDIRECT_URL = 'login'      # A donde va cuando cierra sesión
+
+LOGIN_URL = 'login'  # Ruta para ir al iniciar sesión si no está autenticado

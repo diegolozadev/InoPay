@@ -1,23 +1,48 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Médicos - InoPay{% endblock %}
 {% block section_title %}Gestión de Médicos{% endblock %}
 
+<link>
+    <link rel="stylesheet" href="{% static 'medicos/css/medico_list.css' %}">
+</link>
+
 {% block content %}
 <div class="container-fluid mt-2">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <!-- Header con título, descripción, barra de búsqueda y botón de nuevo médico -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h4 class="fw-bold mb-0">Panel de Profesionales</h4>
-            <small class="text-muted">Gestiona los honorarios de tu staff</small>
+            <h4 class="fw-bold mb-0 text-dark">Panel de Profesionales</h4>
+            <small class="text-muted text-uppercase fw-medium" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-users-gear me-1"></i> Gestiona los honorarios de tu staff
+            </small>
         </div>
-        <a href="{% url 'medico-create' %}" class="btn btn-primary shadow-sm">
-            <i class="fa-solid fa-plus me-1"></i> Nuevo Médico
-        </a>
+
+        <div class="d-flex gap-4 align-items-center">
+            <div class="position-relative">
+                <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                    <i class="fa-solid fa-magnifying-glass fa-sm"></i>
+                </span>
+                <input type="text" 
+                    id="searchMedico" 
+                    class="form-control form-control-sm ps-5 border-0 shadow-sm" 
+                    placeholder="Filtrar por nombre o documento..." 
+                    style="border-radius: 10px; width: 400px; height: 40px;">
+            </div>
+
+            <a href="{% url 'medico-create' %}" class="btn btn-primary shadow-sm px-3 d-flex align-items-center" style="border-radius: 10px; height: 40px;">
+                <i class="fa-solid fa-plus me-2"></i> 
+                <span class="fw-bold small text-uppercase">Nuevo Médico</span>
+            </a>
+        </div>
     </div>
 
+    <!-- Grid de médicos -->
     <div class="row">
         {% for medico in medicos %}
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-lg-4 col-md-6 mb-4 medico-item item-visible fade-in-item">
             <div class="card h-100 border-0 shadow-sm hover-shadow transition">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
@@ -48,12 +73,12 @@
                     </div>
                     <div class="d-grid gap-2 mt-2">
                         <a href="{% url 'cargar-produccion-medico' medico.pk %}" class="btn btn-light btn-sm text-primary fw-bold rounded-3 border">
-                            <i class="fa-solid fa-chart-line me-1"></i> Cargar Producción
+                            <i class="fa-solid fa-cloud-arrow-up me-1"></i> Cargar Producción
                         </a>
                     </div>
                     <div class="d-grid gap-2 mt-2">
                         <a href="{% url 'preparar-recibo' medico.pk %}" class="btn btn-light btn-sm text-primary fw-bold rounded-3 border">
-                            <i class="fa-solid fa-file-invoice me-1"></i> Preparar Recibo
+                            <i class="fa-regular fa-file-pdf me-1"></i> Preparar Recibo
                         </a>
                     </div>
                 </div>
@@ -67,15 +92,109 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Div para mostrar cuando no hay resultados de búsqueda -->
+    <div id="noResults" class="col-12 text-center py-5" style="display: none;">
+        <div class="text-muted mb-3"><i class="fas fa-search fa-3x"></i></div>
+        <h5>No se encontraron resultados</h5>
+        <p>Intenta ajustar tu búsqueda.</p>
+    </div>
+
 </div>
 
 <style>
-    .small-label { font-size: 0.6rem; letter-spacing: 0.5px; text-transform: uppercase; }
-    .hover-shadow:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    /* 1. Utilidades de diseño para las cards */
+    .small-label { 
+        font-size: 0.65rem; 
+        letter-spacing: 0.5px; 
+        text-transform: uppercase; 
+        font-weight: 700;
+        color: #6c757d;
     }
-    .transition { transition: all 0.25s ease-in-out; }
-    .bg-soft-primary { border: 1px solid #cfe2ff; }
+
+    .bg-soft-primary { 
+        background-color: #f0f7ff;
+        border: 1px solid #cfe2ff; 
+    }
+
+    /* 2. Efecto Hover (independiente de la filtración) */
+    .hover-shadow {
+        transition: transform 0.25s ease-out, box-shadow 0.25s ease-out !important;
+    }
+
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.12) !important;
+    }
+
+    /* 3. Lógica de Animación del Buscador */
+    .medico-item {
+        /* cubic-bezier hace que el movimiento sea más "elástico" y pro */
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+        opacity: 1;
+    }
+
+    /* Cuando el médico NO coincide con la búsqueda */
+    .item-hidden {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+        pointer-events: none;
+        
+        /* Estas líneas hacen que el espacio desaparezca suavemente */
+        max-height: 0;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        overflow: hidden;
+    }
+
+    /* Cuando el médico SÍ coincide con la búsqueda */
+    .item-visible {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        max-height: 1000px; /* Valor alto para que quepa el contenido */
+        pointer-events: auto;
+    }
+
+    /* 4. Estilo extra para el mensaje de "Sin resultados" */
+    #noResults {
+        transition: opacity 0.3s ease-in-out;
+        opacity: 0; /* Empieza invisible */
+    }
 </style>
+
+<script>
+    document.getElementById('searchMedico').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const medicoColumns = document.querySelectorAll('.medico-item');
+        let encontrados = 0;
+
+        medicoColumns.forEach(col => {
+            const cardText = col.innerText.toLowerCase();
+            
+            if (cardText.includes(query)) {
+                col.classList.remove('item-hidden');
+                col.classList.add('item-visible');
+                col.style.order = "0"; // <-- Prioridad máxima para las que coinciden
+                encontrados++;
+            } else {
+                col.classList.remove('item-visible');
+                col.classList.add('item-hidden');
+                col.style.order = "99"; // <-- Se van al final mientras desaparecen
+            }
+        });
+
+        const noResults = document.getElementById('noResults');
+        if (encontrados === 0) {
+            noResults.style.display = 'block';
+            setTimeout(() => noResults.style.opacity = '1', 10);
+            noResults.style.order = "-1"; // El mensaje sale arriba de todo
+        } else {
+            noResults.style.display = 'none';
+            noResults.style.opacity = '0';
+        }
+    });
+</script>
 {% endblock %}
