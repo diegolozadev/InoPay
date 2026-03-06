@@ -3,30 +3,46 @@
 
 {% block content %}
 <div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Consolidado de Producción</h2>
-        <div class="mb-3">
-            <a href="{% url 'exportar-produccion-excel' %}?{{ request.GET.urlencode }}" class="btn btn-success">
-                <i class="fa-solid fa-file-excel me-2"></i> Descargar Excel
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="fw-bold text-dark mb-0">Consolidado de Producción</h2>
+            <p class="text-muted small">Gestión y control de lo producido por los médicos</p>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-white p-3" style="border-radius: 15px; border-left: 5px solid #004481 !important;">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-light p-2 me-3">
+                        <i class="fa-solid fa-database text-primary"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0 fw-bold text-uppercase" style="font-size: 0.7rem;">Total Histórico</p>
+                        <h4 class="mb-0 fw-bold">{{ total_general|intcomma }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="{% url 'exportar-produccion-excel' %}?{{ request.GET.urlencode }}" class="btn btn-success shadow-sm px-4">
+                <i class="fa-solid fa-file-excel me-2"></i> Exportar
             </a>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label small fw-bold">Fecha Inicio</label>
-                    <input type="date" name="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+                    <label class="form-label small fw-bold text-secondary">FECHA INICIO</label>
+                    <input type="date" name="fecha_inicio" class="form-control border-0 bg-light" value="{{ request.GET.fecha_inicio }}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small fw-bold">Fecha Fin</label>
-                    <input type="date" name="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+                    <label class="form-label small fw-bold text-secondary">FECHA FIN</label>
+                    <input type="date" name="fecha_fin" class="form-control border-0 bg-light" value="{{ request.GET.fecha_fin }}">
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold">Médico</label>
-                    <select name="medico" class="form-select">
-                        <option value="">Todos los médicos</option>
+                    <label class="form-label small fw-bold text-secondary">MÉDICO</label>
+                    <select name="medico" class="form-select border-0 bg-light">
+                        <option value="">Todos los especialistas</option>
                         {% for m in medicos %}
                             <option value="{{ m.id }}" {% if request.GET.medico == m.id|stringformat:"i" %}selected{% endif %}>
                                 {{ m.nombre }}
@@ -34,24 +50,24 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-dark w-100">
-                        <i class="fa-solid fa-filter me-2"></i>Filtrar
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark w-100 fw-bold">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i> Buscar
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px; overflow: hidden;">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light text-muted small uppercase">
-                    <tr>
-                        <th class="ps-4">Fecha</th>
+                <thead class="bg-light">
+                    <tr class="text-muted small text-uppercase">
+                        <th class="ps-4 py-3">Fecha</th>
                         <th>Médico</th>
                         <th>Servicio</th>
-                        <th>Unidad Negocio</th>
+                        <th>U. Negocio</th>
                         <th class="text-center">Cant.</th>
                         <th class="text-end pe-4">Subtotal</th>
                     </tr>
@@ -60,24 +76,78 @@
                     {% for p in producciones %}
                     <tr>
                         <td class="ps-4 fw-medium">{{ p.fecha_labor|date:"d/m/Y" }}</td>
-                        <td>{{ p.medico.nombre }}</td>
-                        <td>{{ p.servicio.nombre }}</td>
                         <td>
-                            <span class="badge rounded-pill bg-light text-dark border">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-xs me-2 bg-primary-subtle text-primary rounded-circle text-center" style="width: 30px; height: 30px; line-height: 30px; font-size: 0.8rem;">
+                                    {{ p.medico.nombre|slice:":1" }}
+                                </div>
+                                {{ p.medico.nombre }}
+                            </div>
+                        </td>
+                        <td><span class="text-truncate d-inline-block" style="max-width: 200px;">{{ p.servicio.nombre }}</span></td>
+                        <td>
+                            <span class="badge rounded-pill bg-light text-dark border fw-normal">
                                 {{ p.servicio.unidad_negocio }}
                             </span>
                         </td>
-                        <td class="text-center"><span class="badge bg-success text-white">{{ p.cantidad }}</span></td>
-                        <td class="text-end pe-4 fw-bold text-primary">${{ p.subtotal|floatformat:0|intcomma }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3">{{ p.cantidad }}</span>
+                        </td>
+                        <td class="text-end pe-4 fw-bold text-dark">${{ p.subtotal|floatformat:0|intcomma }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">No se encontraron registros en este rango.</td>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="fa-solid fa-folder-open fa-3x text-light mb-3"></i>
+                            <p class="text-muted">No se encontraron registros con esos criterios.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <div class="card-footer bg-white py-3 border-0">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <span class="text-muted small">
+                        Mostrando <strong>{{ producciones|length }}</strong> de <strong>{{ total_general }}</strong> registros
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    {% if is_paginated %}
+                    <nav aria-label="Navegación de producción">
+                        <ul class="pagination pagination-sm justify-content-end mb-0">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link border-0 rounded-circle mx-1" href="?page={{ page_obj.previous_page_number }}&fecha_inicio={{ request.GET.fecha_inicio }}&fecha_fin={{ request.GET.fecha_fin }}&medico={{ request.GET.medico }}">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active"><span class="page-link rounded-circle mx-1">{{ page_obj.number }}</span></li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link border-0 rounded-circle mx-1" href="?page={{ page_obj.next_page_number }}&fecha_inicio={{ request.GET.fecha_inicio }}&fecha_fin={{ request.GET.fecha_fin }}&medico={{ request.GET.medico }}">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    .avatar-xs { background-color: #e7f0ff; color: #004481; font-weight: bold; }
+    .page-link { color: #6c757d; }
+    .page-item.active .page-link { background-color: #004481; border-color: #004481; }
+    .table-hover tbody tr:hover { background-color: #f8faff; }
+</style>
 {% endblock %}

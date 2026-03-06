@@ -136,12 +136,12 @@ class ProduccionListView(LoginRequiredMixin, ListView):
     model = Produccion
     template_name = 'medicos/produccion_list.html'
     context_object_name = 'producciones'
-    paginate_by = 20  # Para no saturar la página
+    paginate_by = 15 
     
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # Mantenemos la lógica de filtrado para la tabla
+        queryset = super().get_queryset().select_related('medico', 'servicio')
         
-        # Capturamos las fechas del formulario (GET)
         fecha_inicio = self.request.GET.get('fecha_inicio')
         fecha_fin = self.request.GET.get('fecha_fin')
         medico_id = self.request.GET.get('medico')
@@ -152,12 +152,16 @@ class ProduccionListView(LoginRequiredMixin, ListView):
         if medico_id:
             queryset = queryset.filter(medico_id=medico_id)
             
-        return queryset.select_related('medico', 'servicio') # Optimización para la DB
+        return queryset.order_by('-fecha_labor')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from medicos.models import Medico
-        context['medicos'] = Medico.objects.all() # Para el filtro desplegable
+        
+        # TOTAL GLOBAL: Este contador ignora los filtros del queryset
+        # Muestra absolutamente todo lo que hay en la tabla Produccion
+        context['total_general'] = Produccion.objects.count()
+        
+        context['medicos'] = Medico.objects.all()
         return context
 
 

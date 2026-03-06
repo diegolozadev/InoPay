@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('medicos.urls')),
     path('', include('tarifas.urls')),
+    path('', include('dashboard.urls')),
     
     # Ruta para el Login y Logout usando las vistas genéricas de Django
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
