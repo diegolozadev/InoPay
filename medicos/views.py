@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Count # Importante para buscar por varios campos
 import openpyxl
 
 # Create your views here.
@@ -19,6 +20,22 @@ class MedicoListView(LoginRequiredMixin, ListView):
     model = Medico
     template_name = 'medicos/medico_list.html'
     context_object_name = 'medicos'
+    paginate_by = 12
+    
+    
+    def get_queryset(self):
+        # Usamos prefetch_related para traer los servicios de un solo golpe
+        queryset = Medico.objects.prefetch_related('servicios')
+        
+        # Lógica de búsqueda por medicos
+        q = self.request.GET.get('q')
+        if q:
+                    queryset = queryset.filter(
+                        Q(nombre__icontains=q) | 
+                        Q(numero_documento__icontains=q)
+                    )
+                
+        return queryset.order_by('nombre')
 
 # view para mostrar el detalle de un médico y permitir su edición
 class MedicoDetailView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
