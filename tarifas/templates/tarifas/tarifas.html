@@ -4,84 +4,93 @@
 {% block title %}Tarifas - InoPay{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4 px-4">
+<div class="container-fluid mt-4 px-4 pb-5">
+    
     <div class="row align-items-center mb-4 g-3">
-        <div class="col-md-6">
-            <h2 class="fw-bold text-dark mb-0">Servicios y Tarifas</h2>
-            <p class="text-muted mb-0">Listado oficial de servicios médicos y sus tarifas.</p>
+        <div class="col-md-5">
+            <div class="d-flex align-items-center gap-3">
+                <h2 class="fw-bold tracking-tight text-dark mb-0">Catálogo de Tarifas</h2>
+                <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2 fw-bold border border-primary-subtle">
+                    {{ len_tarifas }} Servicios
+                </span>
+            </div>
+            <p class="text-muted mb-0 font-sm">Gestión integral de precios y servicios médicos.</p>
         </div>
         
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body py-2 d-flex align-items-center justify-content-center gap-3">
-                    <div class="bg-primary-subtle p-2 rounded-circle">
-                        <i class="fa-solid fa-layer-group text-primary"></i>
-                    </div>
-                    <p class="mb-0 small fw-bold text-muted">Total de Servicios: <span class="text-dark fs-5 ms-1">{{ len_tarifas }}</span></p>
-                </div>
-            </div>
+        <div class="col-md-4">
+            <form method="get" action="" class="search-glass px-3 py-1 d-flex align-items-center">
+                <i class="fa-solid fa-magnifying-glass text-muted me-2"></i>
+                <input type="text" name="q" value="{{ request.GET.q|default:'' }}" 
+                       class="form-control border-0 bg-transparent font-sm" 
+                       placeholder="Buscar por servicio, unidad de negocio o descripción...">
+                {% if request.GET.q %}
+                    <a href="?{% if request.GET.page %}page={{ request.GET.page }}{% endif %}" class="text-muted ms-2">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                {% endif %}
+            </form>
         </div>
 
         <div class="col-md-3 text-md-end">
-            <a href="{% url 'tarifa_create' %}" class="btn btn-primary px-4 py-2 shadow-sm rounded-pill fw-bold">
-                <i class="fas fa-plus-circle me-2"></i>Nuevo Servicio
+            <a href="{% url 'tarifa_create' %}" class="btn btn-pro-dark shadow-sm w-100 w-md-auto">
+                <i class="fas fa-plus-circle me-2"></i> Nuevo Servicio
             </a>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 15px;">
+    <div class="card border-0 shadow-sm card-master">
         <div class="table-responsive">
-            <table class="table align-middle mb-0 table-hover">
-                <thead class="bg-light">
-                    <tr class="text-muted small text-uppercase">
-                        <th class="ps-4 py-3" style="letter-spacing: 0.5px;">Servicio</th>
-                        <th class="py-3">Precio Unitario</th>
-                        <th class="py-3">Unidad de Negocio</th>
-                        <th class="py-3 d-none d-lg-table-cell">Descripción</th>
-                        <th class="text-end pe-4 py-3">Gestión</th>
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Servicio</th>
+                        <th>Precio Unitario</th>
+                        <th>Unidad de Negocio</th>
+                        <th class="d-none d-lg-table-cell">Descripción</th>
+                        <th class="text-end pe-4">Gestión</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for tarifa in tarifas %}
-                    <tr>
+                    <tr class="tarifa-row">
                         <td class="ps-4 py-3">
-                            <span class="fw-bold text-dark d-block">{{ tarifa.nombre }}</span>
-                            <span class="text-muted small d-lg-none">{{ tarifa.descripcion|truncatechars:30 }}</span>
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box me-3">
+                                    <i class="fa-solid fa-notes-medical"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-bold text-dark d-block mb-0">{{ tarifa.nombre }}</span>
+                                    <span class="text-muted font-xs">ID-{{ tarifa.id }}</span>
+                                </div>
+                            </div>
                         </td>
                         <td>
-                            <span class="badge bg-success-subtle text-success fs-6 px-3 py-2 border border-success-subtle">
-                                ${{ tarifa.precio|floatformat:0|intcomma }}
-                            </span>
+                            <div class="price-tag">
+                                <span class="currency">$</span>
+                                <span>{{ tarifa.precio|floatformat:0|intcomma }}</span>
+                            </div>
                         </td>
                         <td>
-                            <span class="badge rounded-pill bg-light text-dark border fw-normal text-uppercase">
+                            <span class="unit-pill">
                                 {{ tarifa.get_unidad_negocio_display }}
                             </span>
                         </td>
                         <td class="d-none d-lg-table-cell">
-                            <div class="text-muted small text-truncate" style="max-width: 250px;">
-                                {{ tarifa.descripcion|default:"Sin descripción detallada" }}
-                            </div>
+                            <span class="text-muted small">{{ tarifa.descripcion|default:"—"|truncatechars:50 }}</span>
                         </td>
                         <td class="text-end pe-4">
-                            <div class="btn-group">
-                                <a href="{% url 'tarifa_detail' tarifa.id %}" class="btn btn-sm btn-light border-0 text-primary mx-1" title="Editar">
-                                    <i class="fas fa-edit"></i>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'tarifa_detail' tarifa.id %}" class="btn-action edit" title="Editar">
+                                    <i class="fas fa-pen"></i>
                                 </a>
-                                <button class="btn btn-sm btn-light border-0 text-danger mx-1" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este servicio?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <div class="py-4">
-                                <i class="fas fa-folder-open fa-4x mb-3 text-light"></i>
-                                <h5 class="text-muted">Aún no hay servicios registrados</h5>
-                                <a href="{% url 'tarifa_create' %}" class="btn btn-sm btn-outline-primary mt-2">Crear el primero</a>
-                            </div>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-face-frown fa-2x mb-3 d-block opacity-25"></i>
+                            No se encontraron resultados para "<strong>{{ request.GET.q }}</strong>"
                         </td>
                     </tr>
                     {% endfor %}
@@ -89,52 +98,139 @@
             </table>
         </div>
 
-        <div class="card-footer bg-white border-top-0 py-3">
-            <div class="row align-items-center">
-                <div class="col-sm-6 text-center text-sm-start">
-                    <p class="text-muted small mb-0">
-                        Mostrando <strong>{{ tarifas|length }}</strong> de <strong>{{ len_tarifas }}</strong> servicios
-                    </p>
+        <div class="card-footer bg-white border-0 py-4 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted font-xs">
+                    Mostrando <strong>{{ tarifas|length }}</strong> de {{ len_tarifas }} servicios
                 </div>
-                <div class="col-sm-6">
-                    {% if is_paginated %}
-                    <nav aria-label="Navegación de servicios">
-                        <ul class="pagination pagination-sm justify-content-center justify-content-sm-end mb-0">
-                            {% if page_obj.has_previous %}
-                                <li class="page-item"><a class="page-link border-0" href="?page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a></li>
-                            {% endif %}
-                            
-                            {% for num in paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                    <li class="page-item active"><span class="page-link border-0 rounded-circle">{{ num }}</span></li>
-                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                    <li class="page-item"><a class="page-link border-0" href="?page={{ num }}">{{ num }}</a></li>
-                                {% endif %}
-                            {% endfor %}
+                
+                {% if is_paginated %}
+                <nav>
+                    <ul class="pagination pagination-sm mb-0 gap-1">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link border-0 bg-light rounded-3" 
+                                   href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
 
-                            {% if page_obj.has_next %}
-                                <li class="page-item"><a class="page-link border-0" href="?page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                    {% endif %}
-                </div>
+                        <li class="page-item active"><span class="page-link border-0 rounded-3 shadow-sm">{{ page_obj.number }}</span></li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link border-0 bg-light rounded-3" 
+                                   href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    /* Clases personalizadas para estados modernos */
-    .bg-success-subtle { background-color: #d1e7dd !important; }
-    .bg-primary-subtle { background-color: #cfe2ff !important; }
+    :root { 
+        --pro-navy: #004481; 
+        --pro-slate: #1e293b; 
+        --pro-green: #10b981;
+    }
     
-    .table thead th { border-bottom: none; }
-    .page-item.active .page-link { background-color: #004481; }
-    .page-link { color: #555; margin: 0 2px; }
+    /* Utilidades */
+    .font-sm { font-size: 0.85rem; }
+    .font-xs { font-size: 0.75rem; }
+    .tracking-tight { letter-spacing: -0.02em; }
+    .bg-primary-subtle { background-color: #eef4ff !important; }
+
+    /* Buscador Glass Premium */
+    .search-glass { 
+        background: white; 
+        border: 1px solid var(--pro-navy);
+        box-shadow: 0 4px 12px rgba(0, 68, 129, 0.08); 
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    .search-glass:focus-within {
+        box-shadow: 0 4px 20px rgba(0, 68, 129, 0.15);
+        transform: translateY(-1px);
+    }
+
+    /* Tabla y Contenedores */
+    .card-master { border-radius: 20px; overflow: hidden; }
     
-    /* Animación al pasar el mouse */
-    .table tbody tr { transition: background-color 0.2s ease; }
-    .table tbody tr:hover { background-color: #f8f9ff !important; }
+    .table thead th { 
+        background: #f8fafc; 
+        padding: 20px 15px; 
+        font-size: 0.9rem; 
+        text-transform: uppercase; 
+        color: #334155; 
+        font-weight: 800; 
+        letter-spacing: 0.05em;
+        border: none;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .tarifa-row { transition: background-color 0.2s; }
+    .tarifa-row:hover { background-color: #f8fafc; }
+
+    .icon-box { 
+        width: 38px; height: 38px; 
+        background: #eef4ff; color: var(--pro-navy); 
+        border-radius: 10px; 
+        display: flex; align-items: center; justify-content: center; 
+    }
+    
+    /* Precios Financieros */
+    .price-tag { 
+        display: flex;
+        align-items: baseline;
+        gap: 2px;
+        font-weight: 800; 
+        color: var(--pro-slate); 
+        font-size: 1.15rem; 
+    }
+    .price-tag .currency { color: var(--pro-green); font-size: 0.85rem; font-weight: 600; }
+
+    /* Unidad de Negocio Pill */
+    .unit-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background-color: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+    /* Botones de Acción */
+    .btn-pro-dark { 
+        background: var(--pro-slate); color: white; 
+        border-radius: 12px; padding: 10px 24px; 
+        font-weight: 600; border: none; transition: 0.2s; 
+    }
+    .btn-pro-dark:hover { background: #000; transform: translateY(-1px); color: white; }
+
+    .btn-action { 
+        width: 34px; height: 34px; border-radius: 8px; 
+        display: flex; align-items: center; justify-content: center; 
+        border: 1px solid #e2e8f0; background: white; 
+        text-decoration: none; transition: 0.2s; 
+    }
+    .btn-action.edit { color: #3b82f6; }
+    .btn-action.edit:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
+    .btn-action.delete { color: #ef4444; }
+    .btn-action.delete:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+    .page-item.active .page-link { background: var(--pro-navy) !important; color: white; }
 </style>
 {% endblock %}

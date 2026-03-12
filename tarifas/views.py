@@ -5,6 +5,7 @@ from .models import Tarifa
 from tarifas.forms import TarifaForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins  import LoginRequiredMixin
+from django.db.models import Q
 
 # Create your views here.
 
@@ -13,12 +14,24 @@ class TarifasView(LoginRequiredMixin, ListView):
     model = Tarifa
     template_name = 'tarifas/tarifas.html'
     context_object_name = 'tarifas'
-    paginate_by = 10 # Opcional: para paginar resultados
-    len_tarifas = Tarifa.objects.count() # Contar el total de tarifas para mostrar en la plantilla
-    
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset().order_by('id')
+        q = self.request.GET.get('q')
+        
+        if q:
+            # Filtra por nombre o descripción
+            queryset = queryset.filter(
+                Q(nombre__icontains=q) | 
+                Q(descripcion__icontains=q) |
+                Q(unidad_negocio__icontains=q)
+            )
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['len_tarifas'] = self.len_tarifas # Agregar el conteo al contexto
+        context['len_tarifas'] = Tarifa.objects.count() 
         return context
     
 # view para editar las tarifas

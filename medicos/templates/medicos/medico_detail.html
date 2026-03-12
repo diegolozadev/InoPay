@@ -26,7 +26,7 @@
                         {{ form.numero_documento }}
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Sede</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase">Centro Operación</label>
                         {{ form.sede }}
                     </div>
                     <div class="col-md-4 mb-3">
@@ -47,6 +47,15 @@
                     <label class="fw-bold small text-primary text-uppercase d-block mb-3">
                         <i class="fas fa-hand-holding-medical me-2"></i>Portafolio de Servicios Autorizados
                     </label>
+
+                    <div class="mb-3 col-md-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" id="filtroServicios" class="form-control border-start-0 ps-0" placeholder="Escribe para buscar servicios...">
+                        </div>
+                    </div>
                     
                     <div class="servicios-edit-container p-3 border rounded bg-light">
                         <p class="text-muted small mb-3">Marque o desmarque los servicios para actualizar el portafolio del médico:</p>
@@ -96,4 +105,30 @@
         border-color: #0d6efd;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buscador = document.getElementById('filtroServicios');
+        const items = document.querySelectorAll('.custom-check-card');
+
+        buscador.addEventListener('input', function() {
+            const term = this.value.toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quita tildes
+
+            items.forEach(item => {
+                const texto = item.innerText.toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                
+                // Buscamos en el contenedor del checkbox (la columna del row)
+                const columna = item.closest('.col');
+                
+                if (texto.includes(term)) {
+                    columna.style.display = 'block';
+                } else {
+                    columna.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

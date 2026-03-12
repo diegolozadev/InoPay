@@ -154,7 +154,7 @@ class ProduccionListView(LoginRequiredMixin, ListView):
     model = Produccion
     template_name = 'medicos/produccion_list.html'
     context_object_name = 'producciones'
-    paginate_by = 15 
+    paginate_by = 10
     
     def get_queryset(self):
         # Mantenemos la lógica de filtrado para la tabla
@@ -204,7 +204,7 @@ def exportar_produccion_excel(request):
     ws.title = "Consolidado Producción"
 
     # Definimos los encabezados (incluyendo Unidad de Negocio)
-    headers = ['Fecha', 'Médico', 'U. Negocio', 'Servicio', 'Cantidad', 'Precio Aplicado', 'Subtotal']
+    headers = ['Fecha', 'Documento', 'Especialidad', 'Médico', 'C. Operación', 'Servicio', 'U. Negocio', 'Cantidad', 'Precio Aplicado', 'Subtotal']
     ws.append(headers)
 
     # 4. Llenamos las filas con la producción
@@ -214,16 +214,19 @@ def exportar_produccion_excel(request):
         total_general += subtotal
         ws.append([
             p.fecha_labor.strftime('%d/%m/%Y') if hasattr(p.fecha_labor, 'strftime') else str(p.fecha_labor),
+            p.medico.numero_documento,
+            p.medico.especialidad,
             p.medico.nombre,
-            p.servicio.unidad_negocio,
+            p.sede_momento,
             p.servicio.nombre,
+            p.servicio.unidad_negocio,
             p.cantidad,
             p.precio_aplicado,
             subtotal
         ])
 
     # Fila final de Total
-    ws.append(['', '', '', '', '', 'TOTAL GENERAL:', total_general])
+    ws.append(['', '', '', '', '', '', '', '','TOTAL GENERAL:', total_general])
 
     # 5. Configuramos la respuesta del navegador para que descargue el archivo
     response = HttpResponse(
