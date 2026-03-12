@@ -116,8 +116,9 @@ def cargar_produccion_medico(request, medico_id):
                             fecha_labor=fecha_labor,
                             registrado_por=request.user,
                             # PUNTO CLAVE: "Congelamos" el precio actual aquí
-                            # Esto protege el histórico si la tarifa sube después
-                            precio_aplicado=servicio_obj.precio
+                            precio_aplicado=servicio_obj.precio, # Esto protege el histórico si la tarifa sube después
+                            sede_momento=medico.sede, # Viene del modelo Medico
+                            unidad_negocio_momento=servicio_obj.unidad_negocio # Viene de Tarifa
                         )
                     )
 
@@ -169,7 +170,7 @@ class ProduccionListView(LoginRequiredMixin, ListView):
         if medico_id:
             queryset = queryset.filter(medico_id=medico_id)
             
-        return queryset.order_by('-fecha_labor')
+        return queryset.order_by('-fecha_labor', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

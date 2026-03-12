@@ -67,6 +67,7 @@
                         <th class="ps-4 py-3">Fecha</th>
                         <th>Médico</th>
                         <th>Servicio</th>
+                        <th>Sede</th>
                         <th>U. Negocio</th>
                         <th class="text-center">Cant.</th>
                         <th class="text-end pe-4">Subtotal</th>
@@ -84,10 +85,11 @@
                                 {{ p.medico.nombre }}
                             </div>
                         </td>
-                        <td><span class="text-truncate d-inline-block" style="max-width: 200px;">{{ p.servicio.nombre }}</span></td>
+                        <td><span class="text-truncate d-inline-block" style="max-width: 400px;">{{ p.servicio.nombre }}</span></td>
+                        <td><span class="text-truncate d-inline-block" style="max-width: 200px;">{{ p.sede_momento }}</span></td>
                         <td>
                             <span class="badge rounded-pill bg-light text-dark border fw-normal">
-                                {{ p.servicio.unidad_negocio }}
+                                {{ p.unidad_negocio_momento }}
                             </span>
                         </td>
                         <td class="text-center">

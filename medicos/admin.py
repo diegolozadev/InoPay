@@ -5,7 +5,7 @@ from .models import Medico, Produccion
 @admin.register(Medico)
 class MedicoAdmin(admin.ModelAdmin):
     # Columnas que verás en la lista principal
-    list_display = ('nombre', 'numero_documento', 'especialidad', 'email', 'telefono','fecha_registro', 'registrado_por')
+    list_display = ('nombre', 'numero_documento', 'especialidad', 'email', 'telefono','fecha_registro', 'sede', 'registrado_por')
     
     # Buscador para no estar bajando por toda la lista
     search_fields = ('nombre', 'numero_documento')

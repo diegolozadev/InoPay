@@ -17,13 +17,17 @@
                 {% csrf_token %}
                 
                 <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="fw-bold small text-muted text-uppercase">Nombre Completo</label>
                         {{ form.nombre }}
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="fw-bold small text-muted text-uppercase">Documento de Identidad</label>
                         {{ form.numero_documento }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Sede</label>
+                        {{ form.sede }}
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="fw-bold small text-muted text-uppercase">Especialidad</label>

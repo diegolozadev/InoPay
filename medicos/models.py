@@ -14,6 +14,16 @@ class Medico(models.Model):
         ('Medicina General', 'Medicina General'),
     ]
     
+    SEDES = [
+        ('Principal', 'Principal'),
+        ('Cabecera', 'Cabecera'),
+        ('Machado', 'Machado'),
+        ('Prado', 'Prado'),
+        ('Fosunab 6', 'Fosunab 6'),
+        ('Fosunab 7', 'Fosunab 7'),
+        ('Fosunab 8', 'Fosunab 8'),
+    ]
+    
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     
     nombre = models.CharField(max_length=100)
@@ -21,6 +31,7 @@ class Medico(models.Model):
     especialidad = models.CharField(max_length=100, choices=ESPECIALIDADES)
     email = models.EmailField(max_length=100, unique=True)
     telefono = models.CharField(max_length=20, blank=True)
+    sede = models.CharField(max_length=100, choices=SEDES, default="Sin sede")
     
     # Relación de muchos a muchos
     servicios = models.ManyToManyField(Tarifa, related_name='medicos', blank=True)
@@ -59,6 +70,10 @@ class Produccion(models.Model):
         verbose_name="Precio Aplicado"
     )
     
+    # Guardan el texto exacto del momento
+    sede_momento = models.CharField(max_length=100)
+    unidad_negocio_momento = models.CharField(max_length=100)
+    
     # Datos de la labor
     cantidad = models.PositiveIntegerField(
         default=1,
@@ -82,6 +97,7 @@ class Produccion(models.Model):
         auto_now_add=True,
         verbose_name="Fecha de Sistema"
     )
+    
 
     class Meta:
         verbose_name = "Registro de Producción"

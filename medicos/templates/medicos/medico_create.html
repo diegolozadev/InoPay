@@ -21,15 +21,19 @@
                         {% csrf_token %}
 
                         <div class="row g-3 mb-4">
-                            <div class="col-md-7">
+                            <div class="col-md-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Nombre Completo</label>
                                 {{ form.nombre }}
                                 {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Documento de Identidad</label>
                                 {{ form.numero_documento }}
                                 {% if form.numero_documento.errors %}<div class="text-danger small">{{ form.numero_documento.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Sede</label>
+                                {{ form.sede }}
                             </div>
                         </div>
 

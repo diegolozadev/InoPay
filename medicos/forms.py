@@ -5,7 +5,7 @@ from django import forms
 class MedicoForm(forms.ModelForm):
     class Meta:
         model = Medico
-        fields = ['nombre', 'numero_documento', 'especialidad', 'email', 'telefono', 'servicios']
+        fields = ['nombre', 'numero_documento', 'especialidad', 'email', 'telefono', 'servicios', 'sede']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'numero_documento': forms.TextInput(attrs={'class': 'form-control'}),
@@ -13,6 +13,7 @@ class MedicoForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'servicios': forms.CheckboxSelectMultiple(),
+            'sede': forms.Select(attrs={'class': 'form-control'})
         }
 
 # formulario para crear o editar una producción (servicio realizado por un médico)
