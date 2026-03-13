@@ -25,7 +25,8 @@
     </div>
 
     <div class="card border-0 shadow-sm mb-4 search-glass-container">
-        <div class="card-body p-4"> <form method="get" class="row g-3 align-items-end">
+        <div class="card-body p-4"> 
+            <form method="get" class="row g-3 align-items-end">
                 <div class="col-md-2">
                     <label class="form-label fw-bold text-secondary ps-2 text-uppercase font-label">Fecha Inicio</label>
                     <input type="date" name="fecha_inicio" class="form-control border-0 bg-light rounded-3 py-2 fs-6" value="{{ request.GET.fecha_inicio }}">
@@ -113,19 +114,52 @@
                         </td>
                     </tr>
                     {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">No hay registros para mostrar.</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
-        <div class="card-footer bg-white border-0 py-4 px-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-muted fs-6">
-                    Mostrando <strong>{{ producciones|length }}</strong> de {{ total_general }} registros
-                </div>
-                </div>
-        </div>
     </div>
+
+    {% if is_paginated or producciones %}
+        <div class="d-flex justify-content-end align-items-center mt-4 gap-3">
+            <div class="text-muted small fw-medium">
+                Mostrando <strong>{{ producciones|length }}</strong> de <strong>{{ total_general }}</strong> registros
+            </div>
+
+            {% if is_paginated %}
+            <nav aria-label="Navegación de producción">
+                <ul class="pagination mb-0 gap-1">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link border-0 bg-white shadow-sm rounded-2 text-dark" 
+                            href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fa-solid fa-chevron-left small"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link border-0 bg-pro-slate shadow-sm rounded-2 fw-bold px-3 text-white">
+                            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link border-0 bg-white shadow-sm rounded-2 text-dark" 
+                            href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fa-solid fa-chevron-right small"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 
 <style>
@@ -135,15 +169,13 @@
         --pro-green: #10b981;
     }
     
-    /* Tamaños de fuente corregidos */
-    .fs-6 { font-size: 0.95rem !important; } /* Texto principal */
-    .font-label { font-size: 0.8rem; font-weight: 600; } /* Textos secundarios */
+    .fs-6 { font-size: 0.95rem !important; }
+    .font-label { font-size: 0.8rem; font-weight: 600; }
     .fs-xs { font-size: 0.75rem; }
-
     .tracking-tight { letter-spacing: -0.02em; }
     .bg-primary-subtle { background-color: #eef4ff !important; }
+    .bg-pro-slate { background-color: var(--pro-slate) !important; }
 
-    /* Tabla */
     .card-master { border-radius: 20px; overflow: hidden; }
     .table thead th { 
         background: #f8fafc; padding: 20px 15px; font-size: 0.85rem; 
@@ -152,10 +184,8 @@
     }
     .tarifa-row:hover { background-color: #f8faff; transition: 0.2s; }
 
-    /* Avatar más grande */
     .avatar-md { width: 45px; height: 45px; }
 
-    /* Precios */
     .price-tag-md { font-weight: 800; color: var(--pro-slate); font-size: 1.15rem; }
     .price-tag-md .currency { color: var(--pro-green); font-size: 0.85rem; margin-right: 2px; }
 
@@ -172,8 +202,16 @@
         border: 1px solid #d1fae5;
     }
 
-    /* Botones */
     .btn-pro-dark { background: var(--pro-slate); color: white; border-radius: 12px; border: none; transition: 0.2s; }
     .btn-success-pro { background: #10b981; color: white; border-radius: 12px; font-weight: 600; border: none; }
+
+    /* Estilos Paginación */
+    .pagination .page-link {
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+    }
 </style>
 {% endblock %}

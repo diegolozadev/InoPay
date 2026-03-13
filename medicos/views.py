@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Count # Importante para buscar por varios campos
+from datetime import datetime
 import openpyxl
 
 # Create your views here.
@@ -136,7 +137,7 @@ def cargar_produccion_medico(request, medico_id):
         try:
             # bulk_create inserta todos los registros en una sola sentencia SQL
             Produccion.objects.bulk_create(registros_a_crear)
-            messages.success(request, f"Se registraron {len(registros_a_crear)} servicios para el Dr. {medico.nombre} con éxito.")
+            messages.success(request, f"Se registraron nuevos servicios para el médico {medico.nombre} con éxito.")
             return redirect('medico-list')
         except Exception as e:
             # Manejo de errores por si algo falla en la base de datos
@@ -273,13 +274,28 @@ def preparar_recibo(request, medico_id):
 @login_required
 def imprimir_recibo(request, medico_id):
     medico = get_object_or_404(Medico, pk=medico_id)
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
     
-    producciones = Produccion.objects.filter(
-        medico=medico,
-        fecha_labor__range=[fecha_inicio, fecha_fin]
-    ).select_related('servicio')
+    # Convertimos los strings a objetos date
+    try:
+        # El formato 'Y-m-d' es el que envían los inputs tipo date de HTML
+        fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
+        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        # Si las fechas fallan o vienen vacías, definimos un comportamiento por defecto
+        # Por ejemplo, todo el mes actual o simplemente fechas vacías
+        fecha_inicio = None
+        fecha_fin = None
+
+    # Filtramos solo si tenemos las fechas
+    if fecha_inicio and fecha_fin:
+        producciones = Produccion.objects.filter(
+            medico=medico,
+            fecha_labor__range=[fecha_inicio, fecha_fin]
+        ).select_related('servicio')
+    else:
+        producciones = Produccion.objects.none()
     
     total = sum(p.subtotal for p in producciones)
 
@@ -287,7 +303,7 @@ def imprimir_recibo(request, medico_id):
         'medico': medico,
         'producciones': producciones,
         'total': total,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin,
+        'fecha_inicio': fecha_inicio, # Ahora es un objeto Date
+        'fecha_fin': fecha_fin,       # Ahora es un objeto Date
         'hoy': timezone.now()
     })

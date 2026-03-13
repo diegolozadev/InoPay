@@ -6,6 +6,7 @@ from tarifas.forms import TarifaForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins  import LoginRequiredMixin
 from django.db.models import Q
+from django.contrib.messages.views import SuccessMessageMixin
 
 # Create your views here.
 
@@ -17,7 +18,7 @@ class TarifasView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset().order_by('id')
+        queryset = super().get_queryset().order_by('-id')
         q = self.request.GET.get('q')
         
         if q:
@@ -35,21 +36,27 @@ class TarifasView(LoginRequiredMixin, ListView):
         return context
     
 # view para editar las tarifas
-class TarifaDetailView(LoginRequiredMixin, UpdateView):
+class TarifaDetailView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Tarifa
     form_class = TarifaForm
     template_name = 'tarifas/tarifa_detail.html'
     context_object_name = 'tarifa'
+    success_message = "¡Tarifa %(nombre)s actualizada con éxito!"
     
     # A dónde redirigir tras guardar con éxito
     success_url = reverse_lazy('tarifas')
     
 # view para crear una nueva tarifa
-class TarifaCreateView(LoginRequiredMixin, CreateView):
+class TarifaCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Tarifa
     form_class = TarifaForm
     template_name = 'tarifas/tarifa_create.html'
-    context_object_name = 'tarifa'
-    
-    # A dónde redirigir tras guardar con éxito
+    success_message = "¡Tarifa %(nombre)s creada con éxito!"
     success_url = reverse_lazy('tarifas')
+
+    def form_valid(self, form):
+        # Asignamos el usuario que está logueado a la columna registrado_por
+        form.instance.registrado_por = self.request.user
+        
+        # Llamamos al método padre para que termine el guardado y el success_message
+        return super().form_valid(form)
