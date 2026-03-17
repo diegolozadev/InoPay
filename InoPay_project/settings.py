@@ -28,7 +28,15 @@ SECRET_KEY = 'django-insecure-_#kb$cw*fxf=e9(-ncrh44fw_1_^jjguir3943)j@ga$z&c+60
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "inopay.onrender.com",
+    "www.inopay.onrender.com"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://inopay.onrender.com/"
+    "https://www.inopay.onrender.com/"
+]
 
 
 # Application definition
