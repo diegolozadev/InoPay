@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Acceso Restringido - InoPay{% endblock %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+    <div class="text-center p-5 shadow-sm bg-white" style="border-radius: 20px; max-width: 500px;">
+        <div class="mb-4">
+            <span class="fa-stack fa-4x">
+                <i class="fas fa-circle fa-stack-2x text-danger opacity-10"></i>
+                <i class="fas fa-shield-halved fa-stack-1x text-danger"></i>
+            </span>
+        </div>
+
+        <h2 class="fw-bold text-dark mb-3">Acceso Denegado</h2>
+        <p class="text-muted mb-4">
+            Lo sentimos, <strong>{{ request.user.nombre|default:request.user.username }}</strong>. 
+            Tu perfil actual no cuenta con los permisos necesarios para completar esta acción.
+        </p>
+
+        <div class="alert alert-light border-0 small text-start mb-4" style="background-color: #f8f9fa;">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Si crees que esto es un error, por favor contacta al administrador del sistema para revisar tus <strong>permisos</strong>.
+        </div>
+
+        <div class="d-grid gap-2">
+            <a href="#" onclick="window.history.back(); return false;" class="btn btn-primary py-2 fw-bold shadow-sm" style="border-radius: 10px;">
+                <i class="fas fa-arrow-left me-2"></i>Volver a la página anterior
+            </a>
+            <a href="mailto:gestordedatos@ino.com.co" class="btn btn-link text-muted btn-sm text-decoration-none">
+                Reportar un problema
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Animación sutil para el icono */
+    .fa-shield-halved {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}

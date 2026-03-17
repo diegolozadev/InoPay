@@ -58,12 +58,12 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* Centrado perfecto */
-            width: 90%;       /* Tamaño de la marca de agua */
-            opacity: 0.04;    /* Opacidad suave para no estorbar la lectura */
+            transform: translate(-50%, -50%);
+            width: 90%;
+            opacity: 0.04;
             pointer-events: none;
             z-index: 0;
-            filter: grayscale(100%); /* Opcional: la hace gris para que sea más elegante */
+            filter: grayscale(100%);
         }
 
         @media print {
@@ -141,10 +141,10 @@
             <tbody>
                 {% for p in producciones %}
                 <tr>
-                    <td class="fw-medium text-dark">{{ p.servicio.nombre }}</td>
-                    <td class="text-center">{{ p.cantidad }}</td>
-                    <td class="text-end text-muted small">${{ p.servicio.precio|floatformat:0|intcomma }}</td>
-                    <td class="text-end fw-bold">${{ p.subtotal|floatformat:0|intcomma }}</td>
+                    <td class="fw-medium text-dark">{{ p.servicio__nombre }}</td>
+                    <td class="text-center">{{ p.cantidad_total }}</td>
+                    <td class="text-end text-muted small">${{ p.servicio__precio|intcomma }}</td>
+                    <td class="text-end fw-bold">${{ p.subtotal_agrupado|intcomma }}</td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -157,7 +157,7 @@
         <div class="d-flex justify-content-end mt-3">
             <div class="total-section text-end">
                 <p class="mb-0 text-muted small text-uppercase fw-bold">Total Neto a Percibir</p>
-                <h2 class="fw-bold mb-0" style="color: var(--primary-ino);">$ {{ total|floatformat:0|intcomma }}</h2>
+                <h2 class="fw-bold mb-0" style="color: var(--primary-ino);">$ {{ total|intcomma }}</h2>
             </div>
         </div>
 

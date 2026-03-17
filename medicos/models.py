@@ -11,7 +11,9 @@ class Medico(models.Model):
         ('Neumología Adulto', 'Neumología Adulto'),
         ('Neumología Pediátrica', 'Neumología Pediátrica'),
         ('Alergología', 'Alergología'),
-        ('Medicina General', 'Medicina General'),
+        ('Cardiología','Cardiología'),
+        ('Internista', 'Internista'),
+        ('Juntas Médicas', 'Juntas Médicas')
     ]
     
     SEDES = [

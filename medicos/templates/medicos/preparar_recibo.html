@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% load humanize %}
 
 {% block title %}Preparar Recibo - {{ medico.nombre }}{% endblock %}
@@ -49,7 +48,7 @@
     {% if producciones %}
     <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
-            <h5 class="mb-0 fw-bold text-dark">Servicios Realizados</h5>
+            <h5 class="mb-0 fw-bold text-dark">Servicios Realizados (Agrupados)</h5>
             <a href="{% url 'imprimir-recibo' medico.id %}?fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" 
                target="_blank" class="btn btn-success fw-bold">
                 <i class="fa-solid fa-print me-2"></i> GENERAR RECIBO (PDF)
@@ -68,20 +67,31 @@
                 <tbody>
                     {% for p in producciones %}
                     <tr>
-                        <td class="ps-4">{{ p.fecha_labor|date:"d/m/Y" }}</td>
-                        <td>
-                            <div class="fw-bold">{{ p.servicio.nombre }}</div>
-                            <small class="text-muted">{{ p.servicio.unidad_negocio }}</small>
+                        <td class="ps-4 small text-muted">
+                            {% if p.antigua_fecha == p.ultima_fecha %}
+                                {{ p.ultima_fecha|date:"d/m/Y" }}
+                            {% else %}
+                                {{ p.antigua_fecha|date:"d/m" }} - {{ p.ultima_fecha|date:"d/m/Y" }}
+                            {% endif %}
                         </td>
-                        <td class="text-center"><span class="badge bg-info text-dark">{{ p.cantidad }}</span></td>
-                        <td class="text-end pe-4 fw-bold text-primary">${{ p.subtotal|floatformat:0|intcomma }}</td>
+                        <td>
+                            <div class="fw-bold">{{ p.servicio__nombre }}</div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-primary rounded-pill">{{ p.cantidad_total }}</span>
+                        </td>
+                        <td class="text-end pe-4 fw-bold text-dark">
+                            ${{ p.subtotal_agrupado|intcomma }}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot class="bg-light">
                     <tr>
                         <td colspan="3" class="text-end fw-bold py-3">TOTAL A PAGAR:</td>
-                        <td class="text-end pe-4 fw-bold py-3 h5 text-success">${{ total|floatformat:0|intcomma }}</td>
+                        <td class="text-end pe-4 fw-bold py-3 h5 text-success">
+                            ${{ total|intcomma }}
+                        </td>
                     </tr>
                 </tfoot>
             </table>
@@ -91,7 +101,7 @@
     <div class="alert alert-light border shadow-sm text-center py-5">
         <i class="fa-solid fa-folder-open fa-3x text-muted mb-3"></i>
         <h5>No se encontró producción</h5>
-        <p class="text-muted">No hay registros para este médico entre el {{ fecha_inicio }} y {{ fecha_fin }}.</p>
+        <p class="text-muted">No hay registros para este médico en el rango seleccionado.</p>
     </div>
     {% endif %}
 </div>

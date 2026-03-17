@@ -41,6 +41,9 @@
                                     <span class="input-group-text bg-light border-end-0">$</span>
                                     {{ form.precio }}
                                 </div>
+                                <div id="precio-formateado" class="form-text text-primary fw-bold mt-1">
+                                    $ 0
+                                </div>
                                 {% if form.precio.errors %}
                                     <div class="text-danger small">{{ form.precio.errors }}</div>
                                 {% endif %}
@@ -85,4 +88,19 @@
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.05);
     }
 </style>
+
+<script>
+document.getElementById('id_precio').addEventListener('input', function(e) {
+    const valor = e.target.value;
+    const visual = document.getElementById('precio-formateado');
+    
+    if (valor) {
+        // Formatea el número solo para mostrarlo en el badge
+        const formateado = new Intl.NumberFormat('es-CO').format(valor);
+        visual.innerText = '$ ' + formateado;
+    } else {
+        visual.innerText = '$ 0';
+    }
+});
+</script>
 {% endblock %}

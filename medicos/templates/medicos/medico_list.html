@@ -8,37 +8,45 @@
 <div class="container-fluid mt-2">
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-            <h2 class="fw-bold mb-0 text-dark">Panel de Profesionales</h2>
-            <small class="text-muted text-uppercase fw-medium" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                <i class="fa-solid fa-users-gear me-1"></i> Gestiona los honorarios de tu staff
-            </small>
+        <div class="d-flex align-items-center">
+            <div>
+                <h2 class="fw-bold mb-0 text-dark">Panel de Profesionales</h2>
+                <small class="text-muted text-uppercase fw-medium" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-users-gear me-1"></i> Gestiona los honorarios de tu staff
+                </small>
+            </div>
+
+            <div class="ms-4 ps-4 border-start d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-user-md fs-4"></i>
+                </div>
+                <div>
+                    <h3 class="fw-black mb-0 text-dark" style="line-height: 1; font-size: 1.8rem;">{{ total_medicos }}</h3>
+                    <p class="mb-0 text-muted fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Médicos</p>
+                </div>
+            </div>
         </div>
 
         <div class="d-flex gap-4 align-items-center">
             <form method="GET" action="{% url 'medico-list' %}" class="position-relative">
                 <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
-                    <i class="fa-solid fa-magnifying-glass fa-sm"></i>
+                    <i class="fa-solid fa-magnifying-glass"></i>
                 </span>
                 <input type="text" 
                     name="q" 
                     value="{{ request.GET.q|default:'' }}"
-                    class="form-control form-control-sm ps-5 border-0 shadow-sm" 
-                    placeholder="Buscar nombre o documento..." 
-                    style="border-radius: 10px; width: 400px; height: 40px;">
-                {% if request.GET.q %}
-                    <a href="{% url 'medico-list' %}" class="position-absolute top-50 end-0 translate-middle-y me-3 text-muted small">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </a>
-                {% endif %}
+                    class="form-control ps-5 border-0 shadow-sm" 
+                    placeholder="Buscar profesional..." 
+                    style="border-radius: 12px; width: 400px; height: 48px; background-color: #ffffff;">
             </form>
 
-            <a href="{% url 'medico-create' %}" class="btn btn-primary shadow-sm px-3 d-flex align-items-center" style="border-radius: 10px; height: 40px;">
+            <a href="{% url 'medico-create' %}" class="btn btn-primary shadow-sm px-4 d-flex align-items-center" style="border-radius: 12px; height: 48px;">
                 <i class="fa-solid fa-plus me-2"></i> 
                 <span class="fw-bold small text-uppercase">Nuevo Médico</span>
             </a>
         </div>
     </div>
+
 
     {% if request.GET.q %}
         <div class="mb-3">

@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins  import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 # Create your views here.
 
@@ -36,7 +37,7 @@ class TarifasView(LoginRequiredMixin, ListView):
         return context
     
 # view para editar las tarifas
-class TarifaDetailView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class TarifaDetailView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Tarifa
     form_class = TarifaForm
     template_name = 'tarifas/tarifa_detail.html'
@@ -46,14 +47,28 @@ class TarifaDetailView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     # A dónde redirigir tras guardar con éxito
     success_url = reverse_lazy('tarifas')
     
+    # 1. HEREDAMOS DE PermissionRequiredMixin (arriba)
+    # 2. DEFINIMOS EL PERMISO (app.permiso en minúsculas)
+    permission_required = 'tarifas.change_tarifa'
+
+    # 3. Si no tiene permiso, muestra el error 403 (Prohibido)
+    raise_exception = True
+    
 # view para crear una nueva tarifa
-class TarifaCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class TarifaCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = Tarifa
     form_class = TarifaForm
     template_name = 'tarifas/tarifa_create.html'
     success_message = "¡Tarifa %(nombre)s creada con éxito!"
     success_url = reverse_lazy('tarifas')
+    
+    # 1. HEREDAMOS DE PermissionRequiredMixin (arriba)
+    # 2. DEFINIMOS EL PERMISO (app.permiso en minúsculas)
+    permission_required = 'tarifas.add_tarifa'
 
+    # 3. Si no tiene permiso, muestra el error 403 (Prohibido)
+    raise_exception = True
+    
     def form_valid(self, form):
         # Asignamos el usuario que está logueado a la columna registrado_por
         form.instance.registrado_por = self.request.user

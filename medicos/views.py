@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Count # Importante para buscar por varios campos
 from datetime import datetime
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Sum, Count, F, Max, Min
 import openpyxl
 
 # Create your views here.
@@ -31,31 +33,57 @@ class MedicoListView(LoginRequiredMixin, ListView):
         # Lógica de búsqueda por medicos
         q = self.request.GET.get('q')
         if q:
-                    queryset = queryset.filter(
-                        Q(nombre__icontains=q) | 
-                        Q(numero_documento__icontains=q)
-                    )
-                
+            queryset = queryset.filter(
+                Q(nombre__icontains=q) | 
+                Q(numero_documento__icontains=q)
+            )
+        
         return queryset.order_by('nombre')
+    
+    def get_context_data(self, **kwargs):
+        # primero obtenemos el contexto basico de la ListView
+        context = super().get_context_data(**kwargs)
+        
+        #Obtenemos el queryset filtrado (sin paginar)
+        queryset_filtrado = self.get_queryset()
+        
+        # Agregamos el conteo total al contexto
+        context['total_medicos'] = queryset_filtrado.count()
+        
+        return context
 
 # view para mostrar el detalle de un médico y permitir su edición
-class MedicoDetailView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class MedicoDetailView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Medico
     form_class = MedicoForm # Importante: asignar formulario
     template_name = 'medicos/medico_detail.html'
     context_object_name = 'medico'
     success_message = "¡Médico %(nombre)s actualizado con éxito!"
+    
+    # 1. HEREDAMOS DE PermissionRequiredMixin (arriba)
+    # 2. DEFINIMOS EL PERMISO (app.permiso en minúsculas)
+    permission_required = 'medicos.change_medico'
+
+    # 3. Si no tiene permiso, muestra el error 403 (Prohibido)
+    raise_exception = True
 
     # A dónde redirigir tras guardar con éxito
     success_url = reverse_lazy('medico-list')
 
 # view para crear un nuevo médico
-class MedicoCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class MedicoCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = Medico
     form_class = MedicoForm # Importante: asignar formulario
     template_name = 'medicos/medico_create.html'
     context_object_name = 'medico'
     success_message = "¡Médico %(nombre)s creado con éxito!"
+    
+    # 1. HEREDAMOS DE PermissionRequiredMixin (arriba)
+    # 2. DEFINIMOS EL PERMISO (app.permiso en minúsculas)
+    permission_required = 'medicos.add_medico'
+
+    # 3. Si no tiene permiso, muestra el error 403 (Prohibido)
+    raise_exception = True
     
     # A dónde redirigir tras guardar con éxito
     success_url = reverse_lazy('medico-list')
@@ -245,7 +273,7 @@ def exportar_produccion_excel(request):
 def preparar_recibo(request, medico_id):
     medico = get_object_or_404(Medico, pk=medico_id)
     
-    # Intentamos obtener fechas si el usuario ya filtró
+    # Obtenemos las fechas del filtro GET
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     
@@ -253,14 +281,33 @@ def preparar_recibo(request, medico_id):
     total = 0
 
     if fecha_inicio and fecha_fin:
-        # Buscamos la producción en ese rango
-        producciones = Produccion.objects.filter(
+        # Filtramos la producción del médico en el rango de fechas
+        qs = Produccion.objects.filter(
             medico=medico,
             fecha_labor__range=[fecha_inicio, fecha_fin]
-        ).select_related('servicio')
+        )
+
+        # Agrupamos los servicios para que no aparezcan duplicados
+        producciones = qs.values(
+            'servicio__nombre', 
+            'servicio__precio',
+            'servicio__unidad_negocio'
+        ).annotate(
+            # Min trae la fecha más antigua de ese grupo de servicios
+            antigua_fecha=Min('fecha_labor'),
+            # Max trae la fecha más reciente de ese grupo de servicios
+            ultima_fecha=Max('fecha_labor'), 
+            # Sumamos las cantidades totales del servicio
+            cantidad_total=Sum('cantidad'),
+            # Calculamos el subtotal acumulado (precio * cantidad)
+            subtotal_agrupado=Sum(F('precio_aplicado') * F('cantidad'))
+        ).order_by('-cantidad_total')
         
-        # Calculamos el total sumando los subtotales de cada registro
-        total = sum(p.subtotal for p in producciones)
+        # Calculamos el gran total de toda la liquidación
+        resultado_total = qs.aggregate(
+            total_general=Sum(F('precio_aplicado') * F('cantidad'))
+        )
+        total = resultado_total['total_general'] or 0
 
     return render(request, 'medicos/preparar_recibo.html', {
         'medico': medico,
@@ -279,31 +326,45 @@ def imprimir_recibo(request, medico_id):
     
     # Convertimos los strings a objetos date
     try:
-        # El formato 'Y-m-d' es el que envían los inputs tipo date de HTML
         fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
         fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
     except (ValueError, TypeError):
-        # Si las fechas fallan o vienen vacías, definimos un comportamiento por defecto
-        # Por ejemplo, todo el mes actual o simplemente fechas vacías
         fecha_inicio = None
         fecha_fin = None
 
-    # Filtramos solo si tenemos las fechas
+    producciones = None
+    total = 0
+
+    # Filtramos y agrupamos solo si tenemos las fechas
     if fecha_inicio and fecha_fin:
-        producciones = Produccion.objects.filter(
+        qs = Produccion.objects.filter(
             medico=medico,
             fecha_labor__range=[fecha_inicio, fecha_fin]
-        ).select_related('servicio')
+        )
+
+        # Aplicamos la misma lógica de agrupación que en preparar_recibo
+        producciones = qs.values(
+            'servicio__nombre', 
+            'servicio__precio',
+            'servicio__unidad_negocio'
+        ).annotate(
+            cantidad_total=Sum('cantidad'),
+            subtotal_agrupado=Sum(F('precio_aplicado') * F('cantidad'))
+        ).order_by('-cantidad_total')
+        
+        # Cálculo del total general
+        resultado_total = qs.aggregate(
+            total_general=Sum(F('precio_aplicado') * F('cantidad'))
+        )
+        total = resultado_total['total_general'] or 0
     else:
-        producciones = Produccion.objects.none()
-    
-    total = sum(p.subtotal for p in producciones)
+        producciones = []
 
     return render(request, 'medicos/recibo_impresion_final.html', {
         'medico': medico,
         'producciones': producciones,
         'total': total,
-        'fecha_inicio': fecha_inicio, # Ahora es un objeto Date
-        'fecha_fin': fecha_fin,       # Ahora es un objeto Date
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
         'hoy': timezone.now()
     })
