@@ -26,16 +26,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_#kb$cw*fxf=e9(-ncrh44fw_1_^jjguir3943)j@ga$z&c+60'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
     "inopay.onrender.com",
-    "www.inopay.onrender.com"
+    "www.inopay.onrender.com",
+    "localhost",
+    "127.0.0.1"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://inopay.onrender.com/"
-    "https://www.inopay.onrender.com/"
+    "https://inopay.onrender.com"
+    "https://www.inopay.onrender.com",
+    "http://localhost:8000"
 ]
 
 
@@ -56,13 +59,13 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'InoPay_project.urls'
@@ -91,13 +94,24 @@ WSGI_APPLICATION = 'InoPay_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+
+if not DEBUG:
+    # ESTO ES PARA RENDER (PRODUCCIÓN)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+else:
+    # ESTO ES PARA TU PC (DESARROLLO)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
