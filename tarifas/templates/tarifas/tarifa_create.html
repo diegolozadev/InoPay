@@ -4,13 +4,13 @@
 {% block section_title %}Registro de Servicios{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 pb-5">
     <div class="row justify-content-center">
-        <div class="col-md-9">
+        <div class="col-md-10">
             
             <div class="mb-4">
                 <h2 class="fw-bold text-dark">Crear Servicio Nuevo</h2>
-                <p class="text-muted">Configure los detalles del nuevo servicio y su unidad de negocio.</p>
+                <p class="text-muted">Configure los detalles del nuevo servicio y su unidad de negocio para la liquidación.</p>
             </div>
 
             <div class="card border-0 shadow-sm" style="border-radius: 12px; border-top: 4px solid #0d6efd !important;">
@@ -19,7 +19,7 @@
                         {% csrf_token %}
 
                         <div class="row">
-                            <div class="col-md-8 mb-4">
+                            <div class="col-md-7 mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Nombre del Servicio / Tarifa</label>
                                 {{ form.nombre }}
                                 <div class="form-text text-muted">Ej: Consulta Neumología Adulto, Lectura Espirometría.</div>
@@ -28,15 +28,28 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-md-4 mb-4">
+                            <div class="col-md-5 mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Unidad de Negocio</label>
                                 {{ form.unidad_negocio }}
+                                {% if form.unidad_negocio.errors %}
+                                    <div class="text-danger small">{{ form.unidad_negocio.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row" id="container-subunidad" style="display: none;">
+                            <div class="col-md-5 offset-md-7 mb-4">
+                                <label class="form-label small fw-bold text-primary text-uppercase">
+                                    <i class="fas fa-arrow-right me-2"></i>Especifique Sub-Unidad
+                                </label>
+                                {{ form.subunidad_procedimientos }}
+                                <div class="form-text text-primary small">Requerido para Procedimientos.</div>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-5 mb-4">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Precio($)</label>
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Precio base ($)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0">$</span>
                                     {{ form.precio }}
@@ -49,15 +62,15 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-md-7 mb-4">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Descripción / Detalles</label>
+                            <div class="col-md-8 mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Descripción / Detalles adicionales</label>
                                 {{ form.descripcion }}
                             </div>
                         </div>
 
                         <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-4" style="background-color: #f0f7ff;">
                             <i class="fas fa-lightbulb text-primary me-3 fs-4"></i>
-                            <span class="small text-dark">Al crear esta tarifa, estará disponible de inmediato para ser asignada a algún <strong>profesional</strong>.</span>
+                            <span class="small text-dark">Al crear esta tarifa, estará disponible de inmediato para ser asignada a algún <strong>profesional.</strong></span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center">
@@ -67,7 +80,7 @@
                             <div class="d-flex gap-2">
                                 <button type="reset" class="btn btn-light px-4 border">Limpiar</button>
                                 <button type="submit" class="btn btn-primary px-4 shadow-sm fw-bold">
-                                    <i class="fas fa-plus-circle me-2"></i>Crear Tarifa
+                                    <i class="fas fa-save me-2"></i>Crear Tarifa
                                 </button>
                             </div>
                         </div>
@@ -79,7 +92,6 @@
 </div>
 
 <style>
-    /* Estilos específicos para la creación */
     .input-group-text { border-right: none; }
     #id_precio { border-left: none; }
     
@@ -87,20 +99,52 @@
         border-color: #0d6efd;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.05);
     }
+
+    #container-subunidad {
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 
 <script>
-document.getElementById('id_precio').addEventListener('input', function(e) {
-    const valor = e.target.value;
-    const visual = document.getElementById('precio-formateado');
-    
-    if (valor) {
-        // Formatea el número solo para mostrarlo en el badge
-        const formateado = new Intl.NumberFormat('es-CO').format(valor);
-        visual.innerText = '$ ' + formateado;
-    } else {
-        visual.innerText = '$ 0';
+document.addEventListener('DOMContentLoaded', function() {
+    // Selectores de los campos generados por Django
+    const inputPrecio = document.getElementById('id_precio');
+    const visualPrecio = document.getElementById('precio-formateado');
+    const selectUnidad = document.getElementById('id_unidad_negocio');
+    const containerSubunidad = document.getElementById('container-subunidad');
+    const selectSubunidad = document.getElementById('id_subunidad_procedimientos');
+
+    // 1. Lógica de Formato de Precio
+    inputPrecio.addEventListener('input', function(e) {
+        const valor = e.target.value;
+        if (valor) {
+            const formateado = new Intl.NumberFormat('es-CO').format(valor);
+            visualPrecio.innerText = '$ ' + formateado;
+        } else {
+            visualPrecio.innerText = '$ 0';
+        }
+    });
+
+    // 2. Lógica de Visibilidad Condicional
+    function toggleSubunidad() {
+        // Verifica que el valor coincida exactamente con "PROCEDIMIENTOS" en tu models.py
+        if (selectUnidad.value === 'PROCEDIMIENTOS') {
+            containerSubunidad.style.display = 'flex'; // Usamos flex para mantener el grid
+        } else {
+            containerSubunidad.style.display = 'none';
+            selectSubunidad.value = ''; // Limpiamos la selección si se oculta
+        }
     }
+
+    selectUnidad.addEventListener('change', toggleSubunidad);
+
+    // Ejecutar al cargar por si hay errores de validación previos
+    toggleSubunidad();
 });
 </script>
 {% endblock %}

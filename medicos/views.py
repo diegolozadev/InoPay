@@ -147,7 +147,8 @@ def cargar_produccion_medico(request, medico_id):
                             # PUNTO CLAVE: "Congelamos" el precio actual aquí
                             precio_aplicado=servicio_obj.precio, # Esto protege el histórico si la tarifa sube después
                             sede_momento=medico.sede, # Viene del modelo Medico
-                            unidad_negocio_momento=servicio_obj.unidad_negocio # Viene de Tarifa
+                            unidad_negocio_momento=servicio_obj.unidad_negocio, # Viene de Tarifa
+                            subunidad_momento=servicio_obj.subunidad_procedimientos
                         )
                     )
 
@@ -214,56 +215,61 @@ class ProduccionListView(LoginRequiredMixin, ListView):
 
 @login_required
 def exportar_produccion_excel(request):
-    # 1. Capturamos los filtros que vienen en la URL (?fecha_inicio=...&medico=...)
+    # 1. Capturamos los filtros
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     medico_id = request.GET.get('medico')
 
-    # 2. Aplicamos los filtros al queryset
-    queryset = Produccion.objects.all().select_related('medico', 'servicio')
+    # 2. Aplicamos filtros (Optimizado: solo traemos medico para nombre/documento)
+    queryset = Produccion.objects.all().select_related('medico')
     
     if fecha_inicio and fecha_fin:
         queryset = queryset.filter(fecha_labor__range=[fecha_inicio, fecha_fin])
     if medico_id:
         queryset = queryset.filter(medico_id=medico_id)
 
-    # 3. Creamos el libro de Excel en memoria
+    # 3. Libro de Excel
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Consolidado Producción"
 
-    # Definimos los encabezados (incluyendo Unidad de Negocio)
-    headers = ['Fecha', 'Documento', 'Especialidad', 'Médico', 'C. Operación', 'Servicio', 'U. Negocio', 'Cantidad', 'Precio Aplicado', 'Subtotal']
+    # Encabezados (11 columnas)
+    headers = [
+        'Fecha', 'Documento', 'Especialidad', 'Médico', 
+        'C. Operación', 'Servicio', 'U. Negocio', 'Sub-Unidad', 
+        'Cantidad', 'Precio Aplicado', 'Subtotal'
+    ]
     ws.append(headers)
 
-    # 4. Llenamos las filas con la producción
+    # 4. Llenamos las filas usando los campos "_momento"
     total_general = 0
     for p in queryset:
-        subtotal = p.cantidad * p.precio_aplicado
-        total_general += subtotal
+        valor_subtotal = p.subtotal 
+        total_general += valor_subtotal
+        
         ws.append([
-            p.fecha_labor.strftime('%d/%m/%Y') if hasattr(p.fecha_labor, 'strftime') else str(p.fecha_labor),
+            p.fecha_labor.strftime('%d/%m/%Y') if p.fecha_labor else '—',
             p.medico.numero_documento,
             p.medico.especialidad,
             p.medico.nombre,
-            p.sede_momento,
-            p.servicio.nombre,
-            p.servicio.unidad_negocio,
+            p.sede_momento,            # Dato guardado en Produccion
+            p.servicio.nombre,         # Nombre del servicio
+            p.unidad_negocio_momento,  # Dato guardado en Produccion
+            p.subunidad_momento or '—', # Dato guardado en Produccion
             p.cantidad,
-            p.precio_aplicado,
-            subtotal
+            p.precio_aplicado,         # Dato guardado en Produccion
+            valor_subtotal
         ])
 
     # Fila final de Total
-    ws.append(['', '', '', '', '', '', '', '','TOTAL GENERAL:', total_general])
+    ws.append(['', '', '', '', '', '', '', '', 'TOTAL GENERAL:', '', total_general])
 
-    # 5. Configuramos la respuesta del navegador para que descargue el archivo
+    # 5. Configuración de respuesta
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
     response['Content-Disposition'] = 'attachment; filename="Reporte_Produccion.xlsx"'
     
-    # Guardamos el libro en la respuesta
     wb.save(response)
     return response
 

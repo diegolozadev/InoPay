@@ -46,6 +46,7 @@
                         <th class="ps-4">Servicio</th>
                         <th>Precio Unitario</th>
                         <th>Unidad de Negocio</th>
+                        <th>Sub-Unidad</th>
                         <th class="d-none d-lg-table-cell">Descripción</th>
                         <th class="text-end pe-4">Gestión</th>
                     </tr>
@@ -73,6 +74,11 @@
                         <td>
                             <span class="unit-pill">
                                 {{ tarifa.get_unidad_negocio_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="unit-pill border-primary-subtle text-primary">
+                                {{ tarifa.get_subunidad_procedimientos_display|default:"—" }}
                             </span>
                         </td>
                         <td class="d-none d-lg-table-cell">

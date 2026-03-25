@@ -18,11 +18,17 @@ class Tarifa(models.Model):
         ("INVESTIGACIÓN", "Investigación")
     ]
     
+    SUBUNIDAD_PROCEDIMIENTOS = [
+        ("DIAGNOSTICOS", "Diagnósticos"),
+        ("INTERVENCIONISMO", "Intervencionismo"),
+    ]
+    
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     
     nombre = models.CharField(max_length=100, verbose_name="Nombre del Servicio")
     precio = models.PositiveIntegerField(verbose_name="Precio del Servicio")
     unidad_negocio = models.CharField(max_length=50, choices=UNIDADES_NEGOCIO, verbose_name="Unidad de Negocio")
+    subunidad_procedimientos = models.CharField(max_length=100, choices=SUBUNIDAD_PROCEDIMIENTOS, blank=True, null=True, verbose_name="Sub-Unidad Procedimientos")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
     
     fecha_registro = models.DateTimeField(auto_now_add=True)

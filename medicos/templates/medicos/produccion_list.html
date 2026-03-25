@@ -71,6 +71,7 @@
                         <th>Servicio</th>
                         <th>Centro de Operación</th>
                         <th>U. Negocio</th>
+                        <th>Sub-Unidad</th>
                         <th class="text-center">Cant.</th>
                         <th class="text-end pe-4">Subtotal</th>
                     </tr>
@@ -103,6 +104,9 @@
                         </td>
                         <td>
                             <span class="unit-pill px-3 py-1 fs-xs">{{ p.unidad_negocio_momento }}</span>
+                        </td>
+                        <td>
+                            <span class="unit-pill px-3 py-1 fs-xs">{{ p.subunidad_momento|default:"—" }}</span>
                         </td>
                         <td class="text-center">
                             <span class="badge-qty fs-6 px-3 py-2">{{ p.cantidad }}</span>

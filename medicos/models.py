@@ -76,6 +76,13 @@ class Produccion(models.Model):
     sede_momento = models.CharField(max_length=100)
     unidad_negocio_momento = models.CharField(max_length=100)
     
+    subunidad_momento = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True, 
+        verbose_name="Sub-Unidad al momento"
+    )
+    
     # Datos de la labor
     cantidad = models.PositiveIntegerField(
         default=1,

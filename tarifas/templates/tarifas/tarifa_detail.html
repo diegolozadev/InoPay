@@ -5,10 +5,9 @@
 {% block section_title %}Gestión de Precios{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-9">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+<div class="container mt-5 pb-5"> <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; border-top: 4px solid #0d6efd !important;">
                 <div class="card-header bg-white py-3 border-bottom">
                     <h5 class="mb-0 fw-bold text-dark">
                         <i class="fas fa-tag me-2 text-primary"></i>
@@ -21,7 +20,7 @@
                         {% csrf_token %}
 
                         <div class="row">
-                            <div class="col-md-8 mb-3">
+                            <div class="col-md-7 mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Nombre del Servicio / Tarifa</label>
                                 {{ form.nombre }}
                                 {% if form.nombre.errors %}
@@ -29,7 +28,7 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-5 mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Unidad de Negocio</label>
                                 {{ form.unidad_negocio }}
                                 {% if form.unidad_negocio.errors %}
@@ -38,8 +37,17 @@
                             </div>
                         </div>
 
+                        <div class="row" id="container-subunidad" style="display: none;">
+                            <div class="col-md-5 offset-md-7 mb-4">
+                                <label class="form-label small fw-bold text-primary text-uppercase">
+                                    <i class="fas fa-arrow-right me-2"></i>Especifique Sub-Unidad
+                                </label>
+                                {{ form.subunidad_procedimientos }}
+                            </div>
+                        </div>
+
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4 mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Precio($)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0">$</span>
@@ -53,7 +61,7 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-md-8 mb-3">
+                            <div class="col-md-8 mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Descripción Corta</label>
                                 {{ form.descripcion }}
                                 {% if form.descripcion.errors %}
@@ -68,7 +76,7 @@
                             <a href="{% url 'tarifas' %}" class="btn btn-light px-4 border text-muted">Cancelar</a>
                             <button type="submit" class="btn btn-primary px-4 shadow-sm">
                                 <i class="fas fa-save me-2"></i>
-                                {% if object %}Actualizar{% else %}Crear{% endif %} Tarifa
+                                Guardar Cambios
                             </button>
                         </div>
                     </form>
@@ -86,34 +94,49 @@
 </div>
 
 <style>
-    /* Ajuste para que el textarea no sea gigante por defecto */
     textarea.form-control {
-        height: 38px; /* Altura inicial parecida a un input */
+        height: 38px;
         min-height: 38px;
         transition: height 0.2s;
     }
     textarea.form-control:focus {
-        height: 100px; /* Se expande al hacer clic */
+        height: 100px;
     }
-    .input-group-text {
-        border-right: none;
-    }
-    #id_precio {
-        border-left: none;
-    }
+    .input-group-text { border-right: none; }
+    #id_precio { border-left: none; }
 </style>
+
 <script>
-document.getElementById('id_precio').addEventListener('input', function(e) {
-    const valor = e.target.value;
-    const visual = document.getElementById('precio-formateado');
-    
-    if (valor) {
-        // Formatea el número solo para mostrarlo en el badge
-        const formateado = new Intl.NumberFormat('es-CO').format(valor);
-        visual.innerText = '$ ' + formateado;
-    } else {
-        visual.innerText = '$ 0';
+document.addEventListener('DOMContentLoaded', function() {
+    const inputPrecio = document.getElementById('id_precio');
+    const visualPrecio = document.getElementById('precio-formateado');
+    const selectUnidad = document.getElementById('id_unidad_negocio');
+    const containerSubunidad = document.getElementById('container-subunidad');
+    const selectSubunidad = document.getElementById('id_subunidad_procedimientos');
+
+    // 1. Formato de precio inicial y al escribir
+    function actualizarFormatoPrecio() {
+        const valor = inputPrecio.value;
+        visualPrecio.innerText = valor ? '$ ' + new Intl.NumberFormat('es-CO').format(valor) : '$ 0';
     }
+
+    // 2. Visibilidad de Sub-Unidad
+    function toggleSubunidad() {
+        if (selectUnidad.value === 'PROCEDIMIENTOS') {
+            containerSubunidad.style.display = 'flex';
+        } else {
+            containerSubunidad.style.display = 'none';
+            // En edición, mejor no borrar el valor automáticamente 
+            // para evitar pérdidas accidentales de datos.
+        }
+    }
+
+    inputPrecio.addEventListener('input', actualizarFormatoPrecio);
+    selectUnidad.addEventListener('change', toggleSubunidad);
+
+    // Ejecutar al cargar la página para que reconozca los datos si es Edición
+    actualizarFormatoPrecio();
+    toggleSubunidad();
 });
 </script>
 {% endblock %}
