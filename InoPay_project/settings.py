@@ -36,7 +36,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://inopay.onrender.com"
+    "https://inopay.onrender.com",
     "https://www.inopay.onrender.com",
     "http://localhost:8000"
 ]
