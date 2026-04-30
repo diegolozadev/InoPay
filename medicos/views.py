@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from medicos.forms import MedicoForm
 from .models import Medico, Produccion, Tarifa
-from django.views.generic import ListView, DetailView, UpdateView, CreateView
+from django.views.generic import DeleteView, ListView, DetailView, UpdateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render, redirect, get_object_or_404
@@ -213,6 +213,7 @@ class ProduccionListView(LoginRequiredMixin, ListView):
         return context
 
 
+# view para exportar a Excel la producción filtrada (con los campos congelados en el momento de la carga)
 @login_required
 def exportar_produccion_excel(request):
     # 1. Capturamos los filtros
@@ -374,3 +375,30 @@ def imprimir_recibo(request, medico_id):
         'fecha_fin': fecha_fin,
         'hoy': timezone.now()
     })
+    
+# Vista para editar un registro de producción específico (en caso de que se necesite corregir algo manualmente)
+class ProduccionUpdateView(SuccessMessageMixin, UpdateView):
+    model = Produccion
+    fields = ['fecha_labor', 'cantidad', 'medico', 'servicio']
+    template_name = 'medicos/produccion_update.html'
+    success_url = reverse_lazy('produccion-list')
+    success_message = "¡Registro de producción actualizado con éxito!"
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Inyectamos clases de Bootstrap a los select
+        form.fields['medico'].widget.attrs.update({'class': 'form-select border-0 bg-light'})
+        form.fields['servicio'].widget.attrs.update({'class': 'form-select border-0 bg-light'})
+        return form
+
+
+# Vista para eliminar un registro de producción específico (en caso de que se necesite eliminar un error)
+class ProduccionDeleteView(SuccessMessageMixin, DeleteView):
+    model = Produccion
+    template_name = 'medicos/produccion_confirm_delete.html'
+    success_url = reverse_lazy('produccion-list')
+    success_message = "¡Registro de producción eliminado con éxito!"
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)

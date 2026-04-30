@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Producción - InoPay{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <!-- Botón Volver -->
+            <div class="mb-4">
+                <a href="{% url 'produccion-list' %}" class="text-decoration-none text-muted fw-bold small">
+                    <i class="fa-solid fa-arrow-left me-1"></i> VOLVER AL LISTADO
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <!-- Encabezado del Formulario -->
+                <div class="card-header bg-dark py-4 text-center border-0">
+                    <h4 class="text-white fw-bold mb-0">Actualizar Registro</h4>
+                    <p class="text-white-50 small mb-0">Modifica los datos de la labor realizada</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Renderizado Manual para mayor control de Estilo -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary text-uppercase small">Fecha de Labor</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fa-solid fa-calendar-day text-primary"></i></span>
+                                <input type="date" name="fecha_labor" 
+                                       class="form-control border-0 bg-light py-2" 
+                                       value="{{ form.fecha_labor.value|date:'Y-m-d' }}" required>
+                            </div>
+                            {% if form.fecha_labor.errors %}
+                                <div class="text-danger small mt-1">{{ form.fecha_labor.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary text-uppercase small">Cantidad</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fa-solid fa-layer-group text-primary"></i></span>
+                                <input type="number" name="cantidad" 
+                                       class="form-control border-0 bg-light py-2" 
+                                       value="{{ form.cantidad.value }}" required>
+                            </div>
+                            {% if form.cantidad.errors %}
+                                <div class="text-danger small mt-1">{{ form.cantidad.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary text-uppercase small">Especialista</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fa-solid fa-user-doctor text-primary"></i></span>
+                                {{ form.medico }}
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label fw-bold text-secondary text-uppercase small">Servicio / Procedimiento</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fa-solid fa-stethoscope text-primary"></i></span>
+                                {{ form.servicio }}
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cambios
+                            </button>
+                            <a href="{% url 'produccion-list' %}" class="btn btn-link text-muted fw-bold text-decoration-none">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body { background-color: #f8fafc; }
+    
+    /* Estilizar los select que Django genera automáticamente */
+    select.form-control, select {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #f8f9fa;
+        background-clip: padding-box;
+        border: 0px solid #ced4da;
+        border-radius: 0 0.375rem 0.375rem 0;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .input-group-text {
+        border-radius: 0.375rem 0 0 0.375rem;
+    }
+
+    .btn-primary {
+        background-color: #004481; /* Azul corporativo */
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #002d56;
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}

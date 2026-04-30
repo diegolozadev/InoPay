@@ -163,6 +163,14 @@
         e.preventDefault();
         document.getElementById("wrapper").classList.toggle("toggled");
     });
+    
+    // Espera 3 segundos y cierra las alertas automáticamente
+    window.setTimeout(function() {
+        $(".alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 3000);
+
     </script>
 
 </body>

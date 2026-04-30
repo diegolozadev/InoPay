@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MedicoCreateView, MedicoListView, MedicoDetailView, cargar_produccion_medico, ProduccionListView, exportar_produccion_excel, preparar_recibo, imprimir_recibo
+from .views import MedicoCreateView, MedicoListView, MedicoDetailView, cargar_produccion_medico, ProduccionListView, exportar_produccion_excel, preparar_recibo, imprimir_recibo, ProduccionUpdateView, ProduccionDeleteView
 
 
 urlpatterns = [
@@ -15,5 +15,9 @@ urlpatterns = [
     
     path('producciones/', ProduccionListView.as_view(), name='produccion-list'),
     path('producciones/exportar-excel/', exportar_produccion_excel, name='exportar-produccion-excel'),
+    
+    path('producciones/<int:pk>/update/', ProduccionUpdateView.as_view(), name='produccion-update'),
+    
+    path('producciones/<int:pk>/delete/', ProduccionDeleteView.as_view(), name='produccion-delete'),
     
 ]

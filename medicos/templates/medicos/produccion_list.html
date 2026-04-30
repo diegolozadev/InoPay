@@ -4,8 +4,9 @@
 {% block title %}Producción - InoPay{% endblock %}
 
 {% block content %}
+
 <div class="container-fluid mt-4 px-4 pb-5">
-    
+    <!-- Encabezado -->
     <div class="row align-items-center mb-4 g-3">
         <div class="col-md-10">
             <div class="d-flex align-items-center gap-3">
@@ -19,11 +20,12 @@
         
         <div class="col-md-2 text-md-end">
             <a href="{% url 'exportar-produccion-excel' %}?{{ request.GET.urlencode }}" class="btn btn-success-pro shadow-sm w-100 w-md-auto py-2 px-4">
-                <i class="fa-solid fa-file-excel me-2"></i> Exportar a Excel
+                <i class="fa-solid fa-file-excel me-2"></i> Exportar
             </a>
         </div>
     </div>
 
+    <!-- Filtros -->
     <div class="card border-0 shadow-sm mb-4 search-glass-container">
         <div class="card-body p-4"> 
             <form method="get" class="row g-3 align-items-end">
@@ -48,7 +50,7 @@
                 </div>
                 <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-pro-dark w-100 fw-bold py-2">
-                        <i class="fa-solid fa-magnifying-glass me-2"></i> Filtrar Resultados
+                        <i class="fa-solid fa-magnifying-glass me-2"></i> Filtrar
                     </button>
                     
                     {% if request.GET.fecha_inicio or request.GET.fecha_fin or request.GET.medico %}
@@ -61,6 +63,7 @@
         </div>
     </div>
 
+    <!-- Tabla Maestra -->
     <div class="card border-0 shadow-sm card-master">
         <div class="table-responsive">
             <table class="table align-middle mb-0">
@@ -69,17 +72,19 @@
                         <th class="ps-4">Fecha</th>
                         <th>Médico</th>
                         <th>Servicio</th>
-                        <th>Centro de Operación</th>
-                        <th>U. Negocio</th>
-                        <th>Sub-Unidad</th>
+                        <th>Sede</th> <!-- Columna Sede Sola -->
+                        <th>U. Negocio / Sub-Unidad</th> <!-- Columna Agrupada -->
                         <th class="text-center">Cant.</th>
-                        <th class="text-end pe-4">Subtotal</th>
+                        <th class="text-end">Subtotal</th>
+                        <th class="text-center pe-4">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for p in producciones %}
                     <tr class="tarifa-row">
-                        <td class="ps-4 py-4"> <span class="fw-bold text-dark d-block mb-0 fs-6">{{ p.fecha_labor|date:"d/m/Y" }}</span></td>
+                        <td class="ps-4 py-4">
+                            <span class="fw-bold text-dark d-block mb-0 fs-6">{{ p.fecha_labor|date:"d/m/Y" }}</span>
+                        </td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="avatar-md me-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5">
@@ -87,46 +92,61 @@
                                 </div>
                                 <div>
                                     <span class="fw-bold text-dark d-block fs-6">{{ p.medico.nombre }}</span>
-                                    <span class="text-muted font-label">{{ p.medico.especialidad }}</span>
+                                    <span class="text-muted font-label small">{{ p.medico.especialidad }}</span>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <span class="text-dark fs-6 d-block text-truncate" style="max-width: 200px;" title="{{ p.servicio.nombre }}">
+                            <span class="text-dark fs-6" style="display: inline-block; max-width: 180px; white-space: normal; line-height: 1.2;" title="{{ p.servicio.nombre }}">
                                 {{ p.servicio.nombre }}
                             </span>
                         </td>
+                        <!-- Sede Sola -->
                         <td>
-                            <span class="fs-6 text-secondary">
-                                <i class="fa-solid fa-building-medical me-1 opacity-50"></i>
-                                {{ p.sede_momento }}
+                            <span class="fs-xs text-secondary fw-bold text-uppercase">
+                                <i class="fa-solid fa-building-medical me-1 opacity-50"></i>{{ p.sede_momento }}
                             </span>
                         </td>
+                        <!-- Unidad y Sub-Unidad agrupadas -->
                         <td>
-                            <span class="unit-pill px-3 py-1 fs-xs">{{ p.unidad_negocio_momento }}</span>
-                        </td>
-                        <td>
-                            <span class="unit-pill px-3 py-1 fs-xs">{{ p.subunidad_momento|default:"—" }}</span>
+                            <div class="d-flex flex-column gap-1">
+                                <span class="unit-pill px-2 py-0 fs-xs" style="font-size: 0.7rem; background-color: #eef2f7;">
+                                    {{ p.unidad_negocio_momento }}
+                                </span>
+                                <span class="text-muted fw-medium" style="font-size: 0.75rem; padding-left: 4px;">
+                                    <i class="fa-solid fa-turn-up fa-rotate-90 me-1 opacity-50"></i>{{ p.subunidad_momento|default:"Sin sub-unidad" }}
+                                </span>
+                            </div>
                         </td>
                         <td class="text-center">
                             <span class="badge-qty fs-6 px-3 py-2">{{ p.cantidad }}</span>
                         </td>
-                        <td class="text-end pe-4">
+                        <td class="text-end">
                             <div class="price-tag-md">
                                 <span class="currency">$</span>{{ p.subtotal|floatformat:0|intcomma }}
+                            </div>
+                        </td>
+                        <td class="text-center pe-4">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{% url 'produccion-update' p.id %}" class="btn btn-sm btn-action-edit" title="Editar registro">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <a href="{% url 'produccion-delete' p.id %}" class="btn btn-sm btn-action-delete" title="Eliminar registro">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">No hay registros para mostrar.</td>
+                        <td colspan="8" class="text-center py-5 text-muted">No hay registros para mostrar.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-
+    <!-- Paginación -->
     {% if is_paginated or producciones %}
         <div class="d-flex justify-content-end align-items-center mt-4 gap-3">
             <div class="text-muted small fw-medium">
@@ -182,7 +202,7 @@
 
     .card-master { border-radius: 20px; overflow: hidden; }
     .table thead th { 
-        background: #f8fafc; padding: 20px 15px; font-size: 0.85rem; 
+        background: #f8fafc; padding: 20px 15px; font-size: 0.8rem; 
         text-transform: uppercase; color: #64748b; font-weight: 800; 
         letter-spacing: 0.05em; border: none; border-bottom: 2px solid #f1f5f9;
     }
@@ -209,13 +229,13 @@
     .btn-pro-dark { background: var(--pro-slate); color: white; border-radius: 12px; border: none; transition: 0.2s; }
     .btn-success-pro { background: #10b981; color: white; border-radius: 12px; font-weight: 600; border: none; }
 
-    /* Estilos Paginación */
-    .pagination .page-link {
-        padding: 8px 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 38px;
-    }
+    /* Botones de acción */
+    .btn-action-edit { background: #f0f7ff; color: #007bff; border: 1px solid #cce5ff; border-radius: 8px; transition: 0.2s; }
+    .btn-action-edit:hover { background: #007bff; color: white; }
+    
+    .btn-action-delete { background: #fff5f5; color: #e03131; border: 1px solid #ffe3e3; border-radius: 8px; transition: 0.2s; }
+    .btn-action-delete:hover { background: #e03131; color: white; }
+
+    .modal-content { border-radius: 1.5rem; }
 </style>
 {% endblock %}
