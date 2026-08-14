@@ -15,7 +15,8 @@ class Tarifa(models.Model):
         ("CLINICA DE SUEÑO", "Clínica de Sueño"),
         ("PROCEDIMIENTOS", "Procedimientos"),
         ("PROGRAMAS INTEGRALES", "Programas Integrales"),
-        ("INVESTIGACIÓN", "Investigación")
+        ("INVESTIGACIÓN", "Investigación"),
+        ("EDUCACIÓN", "Educación")
     ]
     
     SUBUNIDAD_PROCEDIMIENTOS = [
