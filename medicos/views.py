@@ -391,6 +391,16 @@ class ProduccionUpdateView(SuccessMessageMixin, UpdateView):
         form.fields['servicio'].widget.attrs.update({'class': 'form-select border-0 bg-light'})
         return form
 
+    def form_valid(self, form):
+        # Al editar el servicio o el médico, volvemos a congelar el precio
+        # y los datos "_momento" con los valores vigentes, para que no quede
+        # un precio_aplicado huérfano del servicio anterior.
+        form.instance.precio_aplicado = form.instance.servicio.precio
+        form.instance.unidad_negocio_momento = form.instance.servicio.unidad_negocio
+        form.instance.subunidad_momento = form.instance.servicio.subunidad_procedimientos
+        form.instance.sede_momento = form.instance.medico.sede
+        return super().form_valid(form)
+
 
 # Vista para eliminar un registro de producción específico (en caso de que se necesite eliminar un error)
 class ProduccionDeleteView(SuccessMessageMixin, DeleteView):
